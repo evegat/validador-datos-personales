@@ -33,7 +33,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
     // In local zero-storage mode, open mailto with prefilled executive summary
     const subject = encodeURIComponent(`[ProtegeDatosLocal] Solicitud de Acompañamiento - ${municipio || 'Municipalidad'}`);
     const body = encodeURIComponent(`SOLICITUD DE ACOMPAÑAMIENTO TÉCNICO LEY N° 21.719
-InnCivica Lab / Eduardo Vega Toledo
+ProtegeDatosLocal / Eduardo Vega Toledo
 
 DATOS INSTITUCIONALES:
 - Municipalidad: ${municipio}
@@ -58,7 +58,7 @@ Por favor coordinar reunión técnica o remitir TDR tipo para contratación.`);
             <div className="flex justify-between items-start mb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-1">
-                  InnCivica Lab · Acompañamiento Técnico
+                  ProtegeDatosLocal · Acompañamiento Técnico
                 </span>
                 <h3 className="text-lg font-bold text-slate-950 dark:text-white">
                   Solicitar Informe Completo y Términos de Referencia (TDR)
@@ -163,7 +163,7 @@ Por favor coordinar reunión técnica o remitir TDR tipo para contratación.`);
               ¡Requerimiento Preparado Exitosamente!
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-              Se ha generado la comunicación formal dirigida al equipo de InnCivica Lab y a Eduardo Vega Toledo. Nos contactaremos a <strong>{email}</strong> a la brevedad.
+              Se ha generado la comunicación formal dirigida al equipo de ProtegeDatosLocal y a Eduardo Vega Toledo. Nos contactaremos a <strong>{email}</strong> a la brevedad.
             </p>
             <button
               onClick={() => { setEnviado(false); onClose(); }}

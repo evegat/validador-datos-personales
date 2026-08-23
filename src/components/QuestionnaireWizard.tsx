@@ -268,7 +268,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
         <p>Profesional universitario con postgrado o especialización en gestión pública y derecho de las tecnologías. Consultor de referencia para consultas técnicas: <strong>Eduardo Vega Toledo</strong> (Consultor en Gestión Pública, Universidad de Chile · Contacto: <code>evegat@uchile.cl</code>).</p>
 
         <div class='footer'>
-          Documento generado mediante la plataforma ProtegeDatosLocal · InnCivica Lab (protegedatoslocal.inncivica.cloud)
+          Documento generado mediante la plataforma ProtegeDatosLocal · ProtegeDatosLocal (protegedatoslocal.protegedatoslocal.cloud)
         </div>
       </body>
       </html>
@@ -465,7 +465,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
                 { key: 'SI', label: 'Sí, está implementado formalmente', desc: 'Existe decreto, protocolo o control técnico vigente.', icon: '✅', color: 'border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30' },
                 { key: 'PARCIAL', label: 'Parcialmente / En desarrollo', desc: 'Existen borradores o acuerdos informales sin formalizar.', icon: '🟡', color: 'border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-950/30' },
                 { key: 'NO', label: 'No está implementado', desc: 'No existe procedimiento ni responsables designados.', icon: '❌', color: 'border-red-500 hover:bg-red-50/50 dark:hover:bg-red-950/30' },
-                { key: 'NO_SABEMOS', label: 'No sabemos / Requiere levantamiento', desc: 'Se desconoce el estado actual en la dirección.', icon: '❓', color: 'border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-950/30' },
+                { key: 'NO_SABEMOS', label: 'No sabe / No responde (Requiere levantamiento)', desc: 'Se desconoce el estado actual o no se dispone de antecedentes.', icon: '❓', color: 'border-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' },
               ].map(opt => {
                 const isSelected = answers[currentQuestion.id] === opt.key;
                 return (

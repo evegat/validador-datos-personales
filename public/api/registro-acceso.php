@@ -3,8 +3,8 @@
 header("Content-Type: application/json; charset=UTF-8");
 
 $allowed_origins = [
-    "https://protegedatoslocal.inncivica.cloud",
-    "https://inncivica.cloud",
+    "https://protegedatoslocal.protegedatoslocal.cloud",
+    "https://protegedatoslocal.cloud",
     "http://localhost:4321",
     "http://localhost:3000"
 ];
@@ -13,7 +13,7 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins, true)) {
     header("Access-Control-Allow-Origin: " . $origin);
 } else {
-    header("Access-Control-Allow-Origin: https://protegedatoslocal.inncivica.cloud");
+    header("Access-Control-Allow-Origin: https://protegedatoslocal.protegedatoslocal.cloud");
 }
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -125,7 +125,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-he
   <p><strong>Correo Institucional:</strong> <a href='mailto:{$email}'>{$email}</a></p>
   <p><strong>Fecha y Hora:</strong> {$fecha}</p>
 </div>
-<p><em>ProtegeDatosLocal · InnCivica Lab</em></p>
+<p><em>ProtegeDatosLocal · ProtegeDatosLocal</em></p>
 </body>
 </html>
 ";
@@ -133,7 +133,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-he
 $headers = [
     "MIME-Version: 1.0",
     "Content-type: text/html; charset=UTF-8",
-    "From: ProtegeDatosLocal <no-reply@inncivica.cloud>",
+    "From: ProtegeDatosLocal <no-reply@protegedatoslocal.cloud>",
     "Reply-To: " . $email,
     "X-Mailer: PDL-Security/2.0"
 ];

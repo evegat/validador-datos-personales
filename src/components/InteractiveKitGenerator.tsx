@@ -285,7 +285,7 @@ export const InteractiveKitGenerator: React.FC = () => {
         <hr style='border: none; border-top: 1pt solid #cbd5e1; margin: 15pt 0;'>
         <pre>${generatedText}</pre>
         <div class='footer'>
-          Instrumento generado por ProtegeDatosLocal · InnCivica Lab (protegedatoslocal.inncivica.cloud)
+          Instrumento generado por ProtegeDatosLocal · ProtegeDatosLocal (protegedatoslocal.protegedatoslocal.cloud)
         </div>
       </body>
       </html>

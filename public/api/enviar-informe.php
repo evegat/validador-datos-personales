@@ -3,8 +3,8 @@
 header("Content-Type: application/json; charset=UTF-8");
 
 $allowed_origins = [
-    "https://protegedatoslocal.inncivica.cloud",
-    "https://inncivica.cloud",
+    "https://protegedatoslocal.protegedatoslocal.cloud",
+    "https://protegedatoslocal.cloud",
     "http://localhost:4321",
     "http://localhost:3000"
 ];
@@ -13,7 +13,7 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins, true)) {
     header("Access-Control-Allow-Origin: " . $origin);
 } else {
-    header("Access-Control-Allow-Origin: https://protegedatoslocal.inncivica.cloud");
+    header("Access-Control-Allow-Origin: https://protegedatoslocal.protegedatoslocal.cloud");
 }
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -105,7 +105,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-he
 $headers_admin = [
     "MIME-Version: 1.0",
     "Content-type: text/html; charset=UTF-8",
-    "From: ProtegeDatosLocal <no-reply@inncivica.cloud>",
+    "From: ProtegeDatosLocal <no-reply@protegedatoslocal.cloud>",
     "Reply-To: " . $email,
     "X-Mailer: PDL-Security/2.0"
 ];
@@ -234,7 +234,7 @@ body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; color: #0f172a; li
 
     <!-- Vías de Contratación -->
     <div class='section-title'>4. Vías de Contratación Pública Procedentes</div>
-    <p style='font-size: 12px; margin-bottom: 6px;'>Para ejecutar este plan con apoyo técnico especializado de <strong>InnCivica Lab</strong>, los mecanismos aplicables son:</p>
+    <p style='font-size: 12px; margin-bottom: 6px;'>Para ejecutar este plan con apoyo técnico especializado de <strong>ProtegeDatosLocal</strong>, los mecanismos aplicables son:</p>
     <ul style='font-size: 12px; color: #334155; padding-left: 20px; margin-top: 0;'>
       <li><strong>Honorarios a Suma Alzada por Cometido Específico:</strong> Conforme al <em>Art. 4° de la Ley N° 18.883</em> (Estatuto Administrativo Municipal, Subtítulo 21).</li>
       <li><strong>Compra Ágil en Mercado Público:</strong> Para montos inferiores a 30 UTM conforme a la <em>Ley N° 19.886 y Ley N° 21.634</em> (Subtítulo 22).</li>
@@ -245,12 +245,12 @@ body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; color: #0f172a; li
       <span style='font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 4px;'>Consultor Principal de Referencia</span>
       <strong style='font-size: 14px; color: #0A2540;'>Eduardo Vega Toledo</strong><br>
       <span style='font-size: 12px; color: #475569;'>Consultor en Gestión Pública · Universidad de Chile</span><br>
-      <a href='mailto:evegat@uchile.cl' style='color: #1e40af; font-weight: bold; font-size: 12px;'>evegat@uchile.cl</a> | <a href='https://protegedatoslocal.inncivica.cloud' style='color: #1e40af; font-size: 12px;'>protegedatoslocal.inncivica.cloud</a>
+      <a href='mailto:evegat@uchile.cl' style='color: #1e40af; font-weight: bold; font-size: 12px;'>evegat@uchile.cl</a> | <a href='https://protegedatoslocal.protegedatoslocal.cloud' style='color: #1e40af; font-size: 12px;'>protegedatoslocal.protegedatoslocal.cloud</a>
     </div>
   </div>
 
   <div class='footer'>
-    <strong>InnCivica Lab · Tecnologías de Gestión Pública</strong><br>
+    <strong>ProtegeDatosLocal · Tecnologías de Gestión Pública</strong><br>
     Este informe constituye un instrumento referencial de orientación técnica interna para la toma de decisiones del Concejo y la Alcaldía, derivado estrictamente de las declaraciones ingresadas por el usuario bajo su propia responsabilidad. No constituye auditoría vinculante ni certificación oficial de cumplimiento ante la CGR ni la APDP.
   </div>
 </div>
@@ -261,7 +261,7 @@ body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; color: #0f172a; li
 $headers_user = [
     "MIME-Version: 1.0",
     "Content-type: text/html; charset=UTF-8",
-    "From: InnCivica Lab <no-reply@inncivica.cloud>",
+    "From: ProtegeDatosLocal <no-reply@protegedatoslocal.cloud>",
     "Reply-To: evegat@uchile.cl",
     "X-Mailer: PDL-Security/2.0"
 ];
