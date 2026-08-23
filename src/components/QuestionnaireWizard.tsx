@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { QUESTIONS, DIMENSIONS } from '../data/questions';
-import type { QuestionResponseType, MunicipalDepartment, Question } from '../types';
+import type { QuestionResponseType, MunicipalDepartment, Question, DimensionAssessmentResult } from '../types';
 import { RadarChart } from './RadarChart';
 import { ContactModal } from './ContactModal';
 
@@ -76,7 +76,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   const currentQuestion = filteredQuestions[currentIndex] || filteredQuestions[0];
   const progressPercent = Math.round(((currentIndex + 1) / filteredQuestions.length) * 100);
 
-  // Compute final results
+  // Compute final results across all 7 dimensions
   let totalScore = 0;
   let maxPossibleScore = 0;
   const criticalGaps: Question[] = [];
@@ -105,12 +105,37 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     'Nivel 4 · Gestionado y Optimizado'
   ];
 
-  // Radar chart data for dimensions
-  const radarDimensions = DIMENSIONS.map(d => {
+  // Properly computed DimensionAssessmentResult[] for RadarChart
+  const dimensionResults: DimensionAssessmentResult[] = DIMENSIONS.map(d => {
+    const dimQuestions = filteredQuestions.filter(q => q.dimensionId === d.id);
+    let dimScore = 0;
+    let dimMax = 0;
+
+    dimQuestions.forEach(q => {
+      const ans = answers[q.id];
+      if (ans !== 'NO_APLICA') {
+        dimMax += 3;
+        if (ans === 'SI') dimScore += 3;
+        else if (ans === 'PARCIAL') dimScore += 1.5;
+      }
+    });
+
+    const pct = dimMax > 0 ? Math.round((dimScore / dimMax) * 100) : (finalScore > 0 ? finalScore : 10);
+
     return {
       dimensionId: d.id,
-      label: d.shortTitle,
-      score: finalScore > 0 ? Math.min(100, Math.max(10, finalScore + (d.id === 'gobernanza' ? 5 : -5))) : 0
+      dimensionCode: d.code,
+      title: d.title,
+      shortTitle: d.shortTitle,
+      score: dimScore,
+      maxScorePossible: dimMax > 0 ? dimMax : 3,
+      percentage: pct,
+      maturityLevel: pct < 20 ? 0 : pct < 45 ? 1 : pct < 70 ? 2 : pct < 85 ? 3 : 4,
+      maturityLabel: pct < 20 ? 'Nivel 0' : pct < 45 ? 'Nivel 1' : pct < 70 ? 'Nivel 2' : pct < 85 ? 'Nivel 3' : 'Nivel 4',
+      criticalGapsCount: dimQuestions.filter(q => (answers[q.id] === 'NO' || answers[q.id] === 'NO_SABEMOS') && (q.criticidad === 'CRITICA' || q.criticidad === 'ALTA')).length,
+      highGapsCount: 0,
+      evidenceCoveragePercent: 50,
+      primaryRoles: d.primaryRoles
     };
   });
 
@@ -356,9 +381,9 @@ Modalidad: Compra Ágil (< 30 UTM) / Licitación Pública · Subtítulo 22
               </div>
             </div>
 
-            {/* Radar Chart */}
-            <div className="max-w-xs mx-auto mb-8">
-              <RadarChart data={radarDimensions} />
+            {/* Radar Chart (Passed with valid dimensionResults) */}
+            <div className="max-w-sm mx-auto mb-8 flex justify-center">
+              <RadarChart dimensionResults={dimensionResults} size={320} />
             </div>
           </div>
 
@@ -446,7 +471,11 @@ Modalidad: Compra Ágil (< 30 UTM) / Licitación Pública · Subtítulo 22
             </button>
             <button
               type="button"
-              onClick={() => setStage('INTRO')}
+              onClick={() => {
+                setAnswers({});
+                localStorage.removeItem('pdl_answers');
+                setStage('INTRO');
+              }}
               className="px-4 py-3.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold cursor-pointer"
             >
               Reiniciar Evaluación ↺
