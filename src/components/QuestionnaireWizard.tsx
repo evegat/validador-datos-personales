@@ -361,7 +361,7 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
                 disabled={isSubmittingReg}
                 className="w-full sm:w-auto px-10 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer disabled:opacity-50"
               >
-                {isSubmittingReg ? 'Registrando acceso...' : 'Iniciar Evaluación Municipal (3 minutos) →'}
+                {isSubmittingReg ? 'Registrando acceso...' : 'Iniciar Evaluación Municipal (5 minutos) →'}
               </button>
             </div>
           </form>

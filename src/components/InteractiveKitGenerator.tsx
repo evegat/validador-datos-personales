@@ -216,6 +216,13 @@ Profesional con experiencia acreditada en gestión pública, derecho de la infor
 ];
 
 export const InteractiveKitGenerator: React.FC = () => {
+  // Helper para evitar concatenaciones repetidas como 'Ilustre Municipalidad de Ilustre Municipalidad de...'
+  const getCleanMuniName = (raw: string) => {
+    const trimmed = (raw || '').trim();
+    const withoutPrefix = trimmed.replace(/^(I\.\s*Municipalidad\s+de\s+|Ilustre\s+Municipalidad\s+de\s+|Municipalidad\s+de\s+)/i, '').trim();
+    return withoutPrefix || 'su Comuna';
+  };
+
   const [selectedKitId, setSelectedKitId] = useState<string>('kit-01');
   const [formData, setFormData] = useState({
     municipio: 'Ilustre Municipalidad de Quilpué',
