@@ -1,13 +1,19 @@
 ---
+import '../styles/global.css';
+
 interface Props {
   title: string;
   description?: string;
+  image?: string;
 }
 
 const { 
-  title = "ProtegeDatosLocal — Ley N° 21.719 para Gobiernos Locales", 
-  description = "Plataforma integral de preparación, diagnóstico, filtro preventivo y kits de adecuación municipal frente a la Ley N° 21.719 de Protección de Datos Personales." 
+  title = "ProtegeDatosLocal — Ley N° 21.719 para Gobiernos Locales en Chile", 
+  description = "Plataforma integral de diagnóstico de madurez, filtro preventivo SaaS (EIPD), generador de kits legales y matriz RAT para municipalidades de Chile.",
+  image = "/og-preview.png"
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://aliceblue-dogfish-345779.hostingersite.com');
 ---
 
 <!DOCTYPE html>
@@ -17,14 +23,61 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    
+    <!-- Primary Meta Tags -->
     <title>{title}</title>
+    <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="keywords" content="Ley 21719, Proteccion de Datos Personales Chile, Municipalidades Chile, Compliance Municipal, DPO Municipal, Evaluacion de Impacto EIPD, Matriz RAT, Eduardo Vega Toledo, Gobiernos Locales Chile" />
+    <meta name="author" content="Eduardo Vega Toledo" />
+    <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#0f172a" />
+
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, canonicalURL)} />
+    <meta property="og:site_name" content="ProtegeDatosLocal" />
+    <meta property="og:locale" content="es_CL" />
+
+    <!-- Twitter Card -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={new URL(image, canonicalURL)} />
+
+    <!-- Schema.org JSON-LD (Estructura de Datos Abierta) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "ProtegeDatosLocal",
+        "operatingSystem": "Web",
+        "applicationCategory": "GovernmentApplication",
+        "description": "Plataforma de diagnóstico de madurez institucional, filtro preventivo de privacidad y kits de adecuación a la Ley N° 21.719 para municipalidades de Chile.",
+        "url": "https://aliceblue-dogfish-345779.hostingersite.com",
+        "author": {
+          "@type": "Person",
+          "name": "Eduardo Vega Toledo",
+          "email": "evega.ap@gmail.com",
+          "jobTitle": "Consultor en Gestión Pública y Protección de Datos",
+          "sameAs": "https://www.linkedin.com/in/evegat1989/"
+        }
+      }
+    </script>
 
     <!-- Google Fonts: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- ARQUITECTURA ZERO-THIRD-PARTY / CERO RASTREADORES EXTERNOS -->
+    <!-- Esta aplicación procesa el 100% de los diagnósticos de forma local en el navegador del usuario (Client-Side). -->
+    <!-- Ningún dato personal, respuesta institucional ni métrica se transfiere a servidores de terceros. -->
   </head>
   <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-800 selection:text-white">
     <!-- Header / Navbar -->
@@ -105,8 +158,9 @@ const {
             <p class="text-slate-400 text-xs leading-relaxed max-w-md mb-4">
               Plataforma de gobernanza, diagnóstico de madurez institucional y filtro preventivo de privacidad para gobiernos locales frente a la Ley N° 21.719 y Ley N° 21.663.
             </p>
-            <div class="text-[11px] text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800 max-w-md">
-              <strong>Aclaración Metodológica:</strong> Instrumento de apoyo a la gestión y preparación institucional. No constituye certificación de cumplimiento legal ni reemplaza la asesoría jurídica especializada.
+            <div class="text-[11px] text-slate-400 bg-slate-900/80 p-3 rounded-xl border border-slate-800 max-w-md space-y-1">
+              <div><strong>Arquitectura Soberana:</strong> Procesamiento local 100% en el navegador (Zero-Storage).</div>
+              <div><strong>Aclaración:</strong> Instrumento de apoyo a la gestión. No constituye certificación legal.</div>
             </div>
           </div>
 

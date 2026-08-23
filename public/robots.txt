@@ -1,18 +1,4 @@
-# robots.txt para Plataforma Ley 21.719
 User-agent: *
 Allow: /
-Allow: /diagnostico
-Allow: /kits
-Allow: /normativa
-Disallow: /admin/
-Disallow: /private/
-Disallow: /backup/
-Disallow: /tmp/
-Disallow: /*.json$
-Disallow: /*.sql$
 
-# AI and Scraper restrictions
-User-agent: GPTBot
-Disallow: /kits/
-User-agent: CCBot
-Disallow: /kits/
+Sitemap: https://aliceblue-dogfish-345779.hostingersite.com/sitemap-index.xml
