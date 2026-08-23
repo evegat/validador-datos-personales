@@ -794,13 +794,61 @@ export const QuestionnaireWizard: React.FC = () => {
               </div>
             </div>
 
-            {/* Print Button */}
-            <div className="text-center pt-4 border-t border-slate-200 no-print">
+            {/* Legal Framework Citations for Council */}
+            <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-700 space-y-1.5">
+              <div className="font-bold text-slate-900 uppercase tracking-wide text-xs mb-1">
+                4. Marco Normativo y Fundamentación Jurídica Municipal:
+              </div>
+              <div>• <strong>Ley N° 18.695 (Orgánica Constitucional de Municipalidades):</strong> Habilitación legal para el cumplimiento de funciones privativas y compartidas (arts. 3, 4 y 5).</div>
+              <div>• <strong>Ley N° 21.719 (Protección de Datos Personales):</strong> Régimen de responsabilidad administrativa y deber de seguridad del jefe de servicio (Título IV).</div>
+              <div>• <strong>Ley N° 19.886 y DS 662/2025:</strong> Exigencia de cláusulas de encargado (DPA) en compras públicas y contratos de servicios informáticos en la nube.</div>
+              <div>• <strong>Ley N° 20.584 y Ley N° 20.379:</strong> Deber de reserva estricta en fichas clínicas de Salud (APS) y datos de vulnerabilidad social (RSH).</div>
+            </div>
+
+            {/* Official Signatures Block (Visible in Print & Screen) */}
+            <div className="pt-6 border-t-2 border-slate-900 mt-10 print-signatures">
+              <div className="text-center">
+                <div className="h-14 border-b border-slate-400 mx-4 mb-2"></div>
+                <div className="text-[11px] font-bold text-slate-900">Responsable / DPO Designado</div>
+                <div className="text-[9px] text-slate-500">Gobernanza de Privacidad</div>
+              </div>
+              <div className="text-center">
+                <div className="h-14 border-b border-slate-400 mx-4 mb-2"></div>
+                <div className="text-[11px] font-bold text-slate-900">Dirección de Asesoría Jurídica</div>
+                <div className="text-[9px] text-slate-500">Visación Legal Municipal</div>
+              </div>
+              <div className="text-center">
+                <div className="h-14 border-b border-slate-400 mx-4 mb-2"></div>
+                <div className="text-[11px] font-bold text-slate-900">Administración Municipal / Alcaldía</div>
+                <div className="text-[9px] text-slate-500">Aprobación Superior</div>
+              </div>
+            </div>
+
+            {/* Action Buttons: Print PDF + Download TDR + Request Support */}
+            <div className="pt-8 border-t border-slate-200 no-print flex flex-wrap items-center justify-between gap-3 mt-8">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-6 py-3 bg-[#0A2540] hover:bg-blue-600 text-white font-bold rounded-xl shadow-xs cursor-pointer text-xs flex items-center gap-2 transition"
+                >
+                  <span>🖨️ Imprimir Informe para el Concejo (PDF)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadTDR}
+                  className="px-5 py-3 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl border border-slate-300 shadow-xs cursor-pointer text-xs flex items-center gap-2 transition"
+                >
+                  <span>📄 Descargar TDR para Mercado Público (.md)</span>
+                </button>
+              </div>
+
               <button
-                onClick={() => window.print()}
-                className="px-8 py-3 bg-blue-800 hover:bg-blue-700 text-white font-bold rounded-xl shadow-xs cursor-pointer text-xs uppercase tracking-wider"
+                type="button"
+                onClick={() => setIsContactModalOpen(true)}
+                className="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-xs cursor-pointer text-xs flex items-center gap-2 transition"
               >
-                🖨️ Imprimir / Guardar en PDF
+                <span>Solicitar Acompañamiento InnCivica Lab →</span>
               </button>
             </div>
           </div>
