@@ -9,14 +9,18 @@ interface WizardProps {
 }
 
 export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }) => {
-  // Navigation stages: 'INTRO' | 'QUESTIONS' | 'RESULTS'
+  // Navigation stages: 'INTRO' (Registro) | 'QUESTIONS' | 'RESULTS'
   const [stage, setStage] = useState<'INTRO' | 'QUESTIONS' | 'RESULTS'>('INTRO');
-  const [municipio, setMunicipio] = useState('I. Municipalidad');
+  
+  // Registration Profile State
+  const [municipio, setMunicipio] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [cargo, setCargo] = useState('Dirección de Asesoría Jurídica');
+  const [email, setEmail] = useState('');
   const [departamento, setDepartamento] = useState<MunicipalDepartment>(
     (initialDepartment as MunicipalDepartment) || 'ALCALDIA_JURIDICO'
   );
-  const [cargo, setCargo] = useState('Dirección de Asesoría Jurídica');
-  const [nombre, setNombre] = useState('');
+  const [isSubmittingReg, setIsSubmittingReg] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Questions and responses state
@@ -29,12 +33,22 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   const [emailSuccess, setEmailSuccess] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
-  // Persistence
+  // Load persistence
   useEffect(() => {
     try {
       const savedMuni = localStorage.getItem('pdl_muni');
+      const savedNombre = localStorage.getItem('pdl_nombre');
+      const savedCargo = localStorage.getItem('pdl_cargo');
+      const savedEmail = localStorage.getItem('pdl_email');
       const savedAnswers = localStorage.getItem('pdl_answers');
+
       if (savedMuni) setMunicipio(savedMuni);
+      if (savedNombre) setNombre(savedNombre);
+      if (savedCargo) setCargo(savedCargo);
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setEmailDestino(savedEmail);
+      }
       if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
     } catch (e) {}
   }, []);
@@ -42,17 +56,55 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   const saveState = (newAnswers: Record<string, QuestionResponseType>) => {
     try {
       localStorage.setItem('pdl_muni', municipio);
+      localStorage.setItem('pdl_nombre', nombre);
+      localStorage.setItem('pdl_cargo', cargo);
+      localStorage.setItem('pdl_email', email);
       localStorage.setItem('pdl_answers', JSON.stringify(newAnswers));
     } catch (e) {}
   };
 
-  const handleStart = () => {
+  const handleRegisterAndStart = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!municipio.trim() || !email.trim() || !nombre.trim()) return;
+
+    setIsSubmittingReg(true);
+
+    try {
+      // Registrar traza en backend
+      await fetch('/api/registro-acceso.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          municipio: municipio.trim(),
+          nombre: nombre.trim(),
+          cargo: cargo.trim(),
+          departamento: departamento,
+          email: email.trim()
+        })
+      });
+    } catch (err) {
+      console.warn('Registro local persistido offline');
+    } finally {
+      setIsSubmittingReg(false);
+    }
+
+    // Save profile locally
+    try {
+      localStorage.setItem('pdl_muni', municipio);
+      localStorage.setItem('pdl_nombre', nombre);
+      localStorage.setItem('pdl_cargo', cargo);
+      localStorage.setItem('pdl_email', email);
+      setEmailDestino(email);
+    } catch (err) {}
+
+    // Filter questions based on department
     if (departamento && departamento !== 'ALCALDIA_JURIDICO') {
       const q = QUESTIONS.filter(item => item.departamento === departamento);
       setFilteredQuestions(q.length > 0 ? q : QUESTIONS);
     } else {
       setFilteredQuestions(QUESTIONS);
     }
+
     setCurrentIndex(0);
     setStage('QUESTIONS');
   };
@@ -76,7 +128,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   const currentQuestion = filteredQuestions[currentIndex] || filteredQuestions[0];
   const progressPercent = Math.round(((currentIndex + 1) / filteredQuestions.length) * 100);
 
-  // Compute final results across all 7 dimensions
+  // Compute final results across all dimensions
   let totalScore = 0;
   let maxPossibleScore = 0;
   const criticalGaps: Question[] = [];
@@ -105,7 +157,6 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     'Nivel 4 · Gestionado y Optimizado'
   ];
 
-  // Properly computed DimensionAssessmentResult[] for RadarChart
   const dimensionResults: DimensionAssessmentResult[] = DIMENSIONS.map(d => {
     const dimQuestions = filteredQuestions.filter(q => q.dimensionId === d.id);
     let dimScore = 0;
@@ -194,39 +245,86 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* STAGE 1: ONBOARDING / INTRO */}
+      {/* STAGE 1: REGISTRO INSTITUCIONAL PREVIO AL DIAGNÓSTICO */}
       {stage === 'INTRO' && (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 sm:p-12 shadow-sm text-center">
-          <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl mx-auto mb-6 border border-blue-200 dark:border-blue-800">
-            📊
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl mx-auto mb-5 border border-blue-200 dark:border-blue-800 shadow-xs">
+            🏛️
           </div>
           <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-2">
-            Autodiagnóstico Institucional Rápido
+            Registro de Acceso Institucional · Ley N° 21.719
           </span>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mb-4 tracking-tight">
-            Diagnóstico de Madurez Ley N° 21.719
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mb-3 tracking-tight">
+            Autodiagnóstico de Madurez Municipal
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-8 leading-relaxed">
-            Responda preguntas clave según la realidad de su comuna para identificar brechas críticas, calcular su nivel de preparación y generar su hoja de ruta.
+            Ingrese los antecedentes de su municipio para personalizar la evaluación, trazar sus brechas críticas y emitir el informe ejecutivo para el Concejo.
           </p>
 
-          <div className="max-w-md mx-auto space-y-4 text-left mb-8">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                Nombre de su Municipalidad:
-              </label>
-              <input
-                type="text"
-                placeholder="Ej: I. Municipalidad de ..."
-                value={municipio}
-                onChange={(e) => setMunicipio(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
-              />
+          <form onSubmit={handleRegisterAndStart} className="max-w-lg mx-auto space-y-4 text-left mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Municipalidad: <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: I. Municipalidad de ..."
+                  value={municipio}
+                  onChange={(e) => setMunicipio(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Su Nombre y Apellido: <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: Patricia Soto"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Cargo / Dirección: <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: Asesoría Jurídica / SECPLA"
+                  value={cargo}
+                  onChange={(e) => setCargo(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Correo Institucional: <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="nombre@municipalidad.cl"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                Área o Dirección a Evaluar:
+                Área o Enfoque del Diagnóstico:
               </label>
               <select
                 value={departamento}
@@ -242,18 +340,20 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
                 <option value="OIRS_TRANSPARENCIA">OIRS y Transparencia</option>
               </select>
             </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={handleStart}
-            className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer"
-          >
-            Comenzar Evaluación (3 minutos) →
-          </button>
+            <div className="pt-4 text-center">
+              <button
+                type="submit"
+                disabled={isSubmittingReg}
+                className="w-full sm:w-auto px-10 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer disabled:opacity-50"
+              >
+                {isSubmittingReg ? 'Registrando acceso...' : 'Iniciar Evaluación Municipal (3 minutos) →'}
+              </button>
+            </div>
+          </form>
 
-          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex items-center justify-center gap-2">
-            <span>🔒 Procesamiento 100% local en su navegador (Zero-Storage).</span>
+          <div className="pt-6 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex items-center justify-center gap-2">
+            <span>🔒 Sus antecedentes se procesan bajo estricto secreto profesional y confidencialidad.</span>
           </div>
         </div>
       )}
@@ -263,7 +363,7 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
         <div className="space-y-6">
           {/* Header Progress */}
           <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
-            <span>{municipio}</span>
+            <span>{municipio} · {nombre} ({cargo})</span>
             <span>Pregunta {currentIndex + 1} de {filteredQuestions.length} ({progressPercent}%)</span>
           </div>
           <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
@@ -362,11 +462,11 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
             <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-1">
               Resultado Oficial de la Evaluación
             </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white mb-1">
               {municipio}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-              Preparación institucional ante la Ley N° 21.719 (Entrada en vigencia: 1 de Diciembre de 2026)
+              Solicitado por: <strong>{nombre}</strong> ({cargo}) · Preparación Ley N° 21.719
             </p>
 
             {/* 3 Main Highlights */}
@@ -385,7 +485,7 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
               </div>
             </div>
 
-            {/* Radar Chart (Passed with valid dimensionResults) */}
+            {/* Radar Chart */}
             <div className="max-w-sm mx-auto mb-8 flex justify-center">
               <RadarChart dimensionResults={dimensionResults} size={320} />
             </div>
@@ -401,7 +501,7 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
                 Reciba el Informe Ejecutivo Completo en su Correo
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
-                Le enviaremos el reporte oficial de <strong>{municipio}</strong> con el plan de 90 días y los Términos de Referencia (TDR) para contratación en Mercado Público.
+                Le enviaremos el reporte oficial de <strong>{municipio}</strong> con el plan de 90 días y las Bases Técnicas (TDR) para contratación mediante <strong>Honorarios a Suma Alzada (Art. 4° Ley N° 18.883)</strong> o <strong>Mercado Público (&lt; 30 UTM)</strong>.
               </p>
 
               {!emailSuccess ? (
@@ -419,7 +519,7 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
                     disabled={isSendingEmail}
                     className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-xl text-xs transition shadow-sm cursor-pointer disabled:opacity-50 shrink-0"
                   >
-                    {isSendingEmail ? 'Enviando...' : 'Enviar Informe →'}
+                    {isSendingEmail ? 'Enviando...' : 'Enviar Informe a mi Correo →'}
                   </button>
                 </form>
               ) : (
@@ -482,7 +582,7 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
               }}
               className="px-4 py-3.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold cursor-pointer"
             >
-              Reiniciar Evaluación ↺
+              Nueva Evaluación ↺
             </button>
           </div>
         </div>
