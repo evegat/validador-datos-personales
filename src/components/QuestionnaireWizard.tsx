@@ -168,9 +168,13 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   };
 
   const handleDownloadTDR = () => {
-    const tdr = `# BASES TÉCNICAS (TDR) TIPO · PLAN DE ADECUACIÓN LEY N° 21.719
+    const tdr = `# BASES TÉCNICAS Y TÉRMINOS DE REFERENCIA (TDR) TIPO
+PLAN DE ADECUACIÓN INSTITUCIONAL A LA LEY N° 21.719
 I. MUNICIPALIDAD DE ${municipio.toUpperCase()}
-Modalidad: Compra Ágil (< 30 UTM) / Licitación Pública · Subtítulo 22
+
+VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
+1. Contratación a Honorarios a Suma Alzada por Cometido Específico (Art. 4° Ley N° 18.883 Estatuto Administrativo Municipal).
+2. Compra Ágil / Mercado Público (< 30 UTM - Ley N° 19.886 y Ley N° 21.634, Subtítulo 22).
 
 1. OBJETO: Contratación de asesoría especializada para adecuación institucional a la Ley N° 21.719.
 2. ENTREGABLES:

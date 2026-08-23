@@ -134,10 +134,10 @@ Por favor coordinar reunión técnica o remitir TDR tipo para contratación.`);
                   onChange={(e) => setTipoServicio(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
                 >
-                  <option value="Plan de Puesta al Día Acelerado (Mercado Público)">Plan de Puesta al Día Acelerado (Consultoría 30-60 días)</option>
-                  <option value="Levantamiento de Matriz RAT e Inventario Comunal">Levantamiento de Matriz RAT e Inventario Comunal</option>
-                  <option value="Auditoría de Salud (CESFAM) y Social (RSH)">Auditoría Especializada Salud (CESFAM) y Social (RSH)</option>
-                  <option value="Capacitación a Directores y Funcionarios Municipales">Capacitación a Directores y Funcionarios Municipales</option>
+                  <option value="Honorarios a Suma Alzada por Cometido Específico (Art. 4° Ley N° 18.883)">Honorarios a Suma Alzada por Cometido Específico (Art. 4° Ley N° 18.883)</option>
+                  <option value="Compra Ágil / Mercado Público (< 30 UTM - Ley N° 19.886)">Compra Ágil / Mercado Público (&lt; 30 UTM - Ley N° 19.886)</option>
+                  <option value="Licitación Pública / Menor (Mercado Público)">Licitación Pública / Menor (Mercado Público)</option>
+                  <option value="Auditoría Especializada Salud (CESFAM) y Social (RSH)">Auditoría Especializada Salud (CESFAM) y Social (RSH)</option>
                 </select>
               </div>
 
