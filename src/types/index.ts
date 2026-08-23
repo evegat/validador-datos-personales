@@ -36,7 +36,7 @@ export type NormativeClassification =
   | 'RECOMENDACION_DE_GESTION' 
   | 'CONTROL_TECNICO_RECOMENDADO' 
   | 'PRACTICA_DE_GESTION'
-  | 'METODOLOGIA_MUNITECH';
+  | 'METODOLOGIA_PROTEGEDATOS';
 
 export type MaturityLevel = 0 | 1 | 2 | 3 | 4;
 

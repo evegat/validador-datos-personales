@@ -41,10 +41,10 @@ export const QuestionnaireWizard: React.FC = () => {
 
   useEffect(() => {
     try {
-      const savedProfile = localStorage.getItem('munitech_profile');
+      const savedProfile = localStorage.getItem('protegedatos_profile');
       if (savedProfile) setProfile(JSON.parse(savedProfile));
 
-      const savedAnswers = localStorage.getItem('munitech_answers');
+      const savedAnswers = localStorage.getItem('protegedatos_answers');
       if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
     } catch (e) {
       console.error(e);
@@ -79,7 +79,7 @@ export const QuestionnaireWizard: React.FC = () => {
     };
     setAnswers(updated);
     try {
-      localStorage.setItem('munitech_answers', JSON.stringify(updated));
+      localStorage.setItem('protegedatos_answers', JSON.stringify(updated));
     } catch (e) {
       console.error(e);
     }
@@ -96,7 +96,7 @@ export const QuestionnaireWizard: React.FC = () => {
     };
     setAnswers(updated);
     try {
-      localStorage.setItem('munitech_answers', JSON.stringify(updated));
+      localStorage.setItem('protegedatos_answers', JSON.stringify(updated));
     } catch (e) {
       console.error(e);
     }
@@ -139,7 +139,7 @@ export const QuestionnaireWizard: React.FC = () => {
     setProfile(newProfile);
     setIsContextModalOpen(false);
     try {
-      localStorage.setItem('munitech_profile', JSON.stringify(newProfile));
+      localStorage.setItem('protegedatos_profile', JSON.stringify(newProfile));
     } catch (e) {
       console.error(e);
     }
@@ -158,7 +158,7 @@ export const QuestionnaireWizard: React.FC = () => {
       case 'RECOMENDACION_DE_GESTION': return '💡 Recomendación de Gestión';
       case 'CONTROL_TECNICO_RECOMENDADO': return '🛡️ Control Técnico Recomendado';
       case 'PRACTICA_DE_GESTION': return '📊 Práctica de Gestión';
-      default: return '🧭 Metodología MuniTech';
+      default: return '🧭 Metodología ProtegeDatosLocal';
     }
   };
 
@@ -506,7 +506,7 @@ export const QuestionnaireWizard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b border-slate-200 pb-8 mb-8">
               <div className="text-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                  Índice MuniTech de Preparación (IMM)
+                  Índice ProtegeDatosLocal de Preparación (IMM)
                 </span>
                 <div className="text-5xl sm:text-6xl font-black text-blue-800 tracking-tight my-2">
                   {assessmentReport.immScore}/100
@@ -524,7 +524,7 @@ export const QuestionnaireWizard: React.FC = () => {
                   {assessmentReport.overallMaturityDescription}
                 </p>
                 <div className="text-xs text-slate-600 bg-slate-100 border border-slate-200 p-3 rounded-xl">
-                  <strong>Aclaración Metodológica:</strong> El Índice MuniTech representa el nivel de preparación y madurez institucional según la metodología diagnóstica. No constituye certificación de cumplimiento legal.
+                  <strong>Aclaración Metodológica:</strong> El Índice ProtegeDatosLocal representa el nivel de preparación y madurez institucional según la metodología diagnóstica. No constituye certificación de cumplimiento legal.
                 </div>
               </div>
             </div>
@@ -715,7 +715,7 @@ export const QuestionnaireWizard: React.FC = () => {
                 </div>
                 <div className="text-right text-xs text-slate-500">
                   <div>Fecha: <strong>{assessmentReport.evaluationDate}</strong></div>
-                  <div>Plataforma: <strong>Validador MuniTech</strong></div>
+                  <div>Plataforma: <strong>ProtegeDatosLocal</strong></div>
                   <div>Revisión normativa: <strong>agosto de 2026</strong></div>
                 </div>
               </div>

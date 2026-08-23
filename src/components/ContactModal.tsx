@@ -28,12 +28,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({
     e.preventDefault();
     
     // Prepare mailto link
-    const subject = encodeURIComponent(`[MuniTech] Requerimiento de Acompañamiento - ${municipio || 'Municipalidad'}`);
+    const subject = encodeURIComponent(`[ProtegeDatosLocal] Requerimiento de Acompañamiento - ${municipio || 'Municipalidad'}`);
     const body = encodeURIComponent(
       `Estimado Eduardo Vega Toledo,
 
 ` +
-      `Me contacto desde la plataforma Validador MuniTech para solicitar información y cotización sobre el servicio de acompañamiento institucional.
+      `Me contacto desde la plataforma ProtegeDatosLocal para solicitar información y cotización sobre el servicio de acompañamiento institucional.
 
 ` +
       `DATOS DE CONTACTO MUNICIPAL:
