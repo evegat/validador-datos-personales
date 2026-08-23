@@ -3,8 +3,9 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
+// https://astro.build/config
 export default defineConfig({
-  site: 'https://aliceblue-dogfish-345779.hostingersite.com',
+  site: 'https://protegedatoslocal.inncivica.cloud',
   integrations: [
     react(),
     sitemap()

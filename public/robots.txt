@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://aliceblue-dogfish-345779.hostingersite.com/sitemap-index.xml
+Sitemap: https://protegedatoslocal.inncivica.cloud/sitemap-index.xml
