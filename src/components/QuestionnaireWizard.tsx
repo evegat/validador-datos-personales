@@ -218,28 +218,65 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     }
   };
 
-  const handleDownloadTDR = () => {
-    const tdr = `# BASES TÉCNICAS Y TÉRMINOS DE REFERENCIA (TDR) TIPO
-PLAN DE ADECUACIÓN INSTITUCIONAL A LA LEY N° 21.719
-I. MUNICIPALIDAD DE ${municipio.toUpperCase()}
+  const handleDownloadWordTDR = () => {
+    const title = `Bases Técnicas TDR - Ley 21.719 - ${municipio}`;
+    const wordHtml = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>${title}</title>
+        <style>
+          body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.4; color: #111; margin: 2.5cm; }
+          h1 { font-size: 16pt; color: #0A2540; border-bottom: 2pt solid #0A2540; padding-bottom: 4pt; margin-bottom: 12pt; text-transform: uppercase; }
+          h2 { font-size: 13pt; color: #1e40af; margin-top: 14pt; margin-bottom: 6pt; }
+          p, li { font-size: 11pt; margin-bottom: 6pt; text-align: justify; }
+          .callout { background: #f1f5f9; border-left: 4pt solid #1e40af; padding: 8pt 12pt; margin: 10pt 0; font-size: 10pt; }
+          .footer { font-size: 9pt; color: #64748b; border-top: 1pt solid #cbd5e1; padding-top: 6pt; margin-top: 20pt; }
+          table { width: 100%; border-collapse: collapse; margin: 10pt 0; }
+          th, td { border: 1pt solid #94a3b8; padding: 6pt 8pt; text-align: left; font-size: 10pt; }
+          th { background: #f8fafc; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h1>Bases Técnicas y Términos de Referencia (TDR) Tipo</h1>
+        <p><strong>REQUERIMIENTO:</strong> Contratación de Asesoría Especializada para la Puesta al Día y Adecuación Municipal a la Ley N° 21.719 de Protección de Datos Personales.</p>
+        <p><strong>MUNICIPALIDAD:</strong> ${municipio.toUpperCase()}</p>
+        <p><strong>FECHA DE EMISIÓN:</strong> ${new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
-VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
-1. Contratación a Honorarios a Suma Alzada por Cometido Específico (Art. 4° Ley N° 18.883 Estatuto Administrativo Municipal).
-2. Compra Ágil / Mercado Público (< 30 UTM - Ley N° 19.886 y Ley N° 21.634, Subtítulo 22).
+        <div class='callout'>
+          <strong>VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA:</strong><br>
+          • <strong>Vía 1:</strong> Honorarios a Suma Alzada por Cometido Específico (Art. 4° Ley N° 18.883, Estatuto Administrativo Municipal).<br>
+          • <strong>Vía 2:</strong> Compra Ágil / Mercado Público (&lt; 30 UTM - Ley N° 19.886 y Ley N° 21.634, Subtítulo 22).
+        </div>
 
-1. OBJETO: Contratación de asesoría especializada para adecuación institucional a la Ley N° 21.719.
-2. ENTREGABLES:
-   - Matriz RAT de Tratamientos por Direcciones.
-   - Decretos de Gobernanza y Designación de Responsables.
-   - Cláusulas DPA para contratos de software y Mercado Público.
-   - Protocolo de Derechos ARSOPB (30 días corridos prorrogables).
-3. CONSULTOR DE REFERENCIA: Eduardo Vega Toledo (evegat@uchile.cl).`;
+        <h2>1. Objetivos del Servicio</h2>
+        <p>Prestar asistencia técnica y jurídica integral para levantar las brechas de cumplimiento, estructurar la gobernanza interna, diseñar el Registro de Actividades de Tratamiento (RAT) y redactar los instrumentos administrativos exigidos antes del hito de vigencia legal del 1 de diciembre de 2026.</p>
 
-    const blob = new Blob([tdr], { type: 'text/markdown;charset=utf-8' });
+        <h2>2. Productos y Entregables Formales</h2>
+        <table>
+          <tr><th>N°</th><th>Entregable Requerido</th><th>Plazo Estimado</th></tr>
+          <tr><td>1</td><td>Informe Ejecutivo de Diagnóstico de Brechas por Dirección Municipal</td><td>Día 15</td></tr>
+          <tr><td>2</td><td>Matriz RAT de Tratamientos por Direcciones (Salud, Social, Tránsito, TI, DAF)</td><td>Día 30</td></tr>
+          <tr><td>3</td><td>Paquete de Decretos Alcaldicios (Designación DPO y Comité de Privacidad)</td><td>Día 40</td></tr>
+          <tr><td>4</td><td>Cláusulas Contractuales de Encargado (DPA) para Contratos de Software en Mercado Público</td><td>Día 50</td></tr>
+          <tr><td>5</td><td>Taller de Capacitación en Deber de Secreto para Funcionarios y Directores</td><td>Día 60</td></tr>
+        </table>
+
+        <h2>3. Perfil del Consultor de Referencia</h2>
+        <p>Profesional universitario con postgrado o especialización en gestión pública y derecho de las tecnologías. Consultor de referencia para consultas técnicas: <strong>Eduardo Vega Toledo</strong> (Consultor en Gestión Pública, Universidad de Chile · Contacto: <code>evegat@uchile.cl</code>).</p>
+
+        <div class='footer'>
+          Documento generado mediante la plataforma ProtegeDatosLocal · InnCivica Lab (protegedatoslocal.inncivica.cloud)
+        </div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `TDR_Adecuacion_Ley21719_${municipio.replace(/\s+/g, '_')}.md`;
+    a.download = `TDR_Adecuacion_Ley21719_${municipio.replace(/\s+/g, '_')}.doc`;
     a.click();
   };
 
@@ -571,6 +608,79 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
             </div>
           )}
 
+          
+          {/* SECCIÓN DE CONSECUENCIAS LEGALES Y AFECTACIÓN INSTITUCIONAL */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Tarjeta 1: Consecuencias del Incumplimiento */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-red-200 dark:border-red-900/60 p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-2">
+                <span>⚖️ Régimen Sancionatorio Municipal</span>
+                <span className="bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 px-2 py-0.5 rounded text-[10px] border border-red-200 dark:border-red-800">Ley N° 21.719</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-950 dark:text-white mb-3">
+                Consecuencias Reales de no Adecuar el Municipio
+              </h3>
+              <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold shrink-0">1.</span>
+                  <div>
+                    <strong>Sumarios de Contraloría (CGR):</strong> El Título IV de la ley establece que las infracciones graves de directivos y jefaturas dan lugar a sumarios administrativos instruidos por la CGR por falta de servicio.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold shrink-0">2.</span>
+                  <div>
+                    <strong>Indemnizaciones Civiles por Daño Moral:</strong> Los vecinos pueden demandar directamente al municipio ante tribunales ordinarios si se filtran antecedentes de salud (CESFAM) o socioeconómicos (RSH).
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500 font-bold shrink-0">3.</span>
+                  <div>
+                    <strong>Nulidad y Vicios en Contrataciones:</strong> Contratos con proveedores de software que carezcan de cláusulas de encargado (DPA) serán objetados en auditorías de compras públicas.
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            {/* Tarjeta 2: Quiénes se ven Afectados */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-blue-200 dark:border-blue-900/60 p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2">
+                <span>👥 Impacto por Estamentos</span>
+                <span className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[10px] border border-blue-200 dark:border-blue-800">Mapa de Riesgo</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-950 dark:text-white mb-3">
+                ¿Quiénes se ven Afectados Directamente?
+              </h3>
+              <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold shrink-0">🏛️</span>
+                  <div>
+                    <strong>Alcaldía y Administrador Municipal:</strong> Responsabilidad política y jurídica en el mando; riesgo de acusaciones por notable abandono de deberes.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold shrink-0">⚖️</span>
+                  <div>
+                    <strong>Directores de Servicio (Jurídico, SECPLA, TI, DAF):</strong> Exposición disciplinaria personal por omisión de medidas técnicas y organizativas.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold shrink-0">🏥</span>
+                  <div>
+                    <strong>Equipos Clínicos y Asistentes Sociales (Salud / DIDECO):</strong> Exposición de médicos, enfermeros y asistentes por manejo no protocolizado de datos sensibles.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold shrink-0">🏘️</span>
+                  <div>
+                    <strong>Vecinos y Titulares de Datos:</strong> Vulneración de su privacidad, usurpación de identidad o discriminación arbitraria en subsidios comunales.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+
           {/* Action Buttons: Print Council Report + Download TDR */}
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
@@ -582,10 +692,10 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
             </button>
             <button
               type="button"
-              onClick={handleDownloadTDR}
+              onClick={handleDownloadWordTDR}
               className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition hover:bg-slate-50"
             >
-              <span>📄 Descargar TDR para Mercado Público (.md)</span>
+              <span>📥 Descargar TDR en Word (.doc)</span>
             </button>
             <button
               type="button"

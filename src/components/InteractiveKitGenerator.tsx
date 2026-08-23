@@ -263,6 +263,42 @@ export const InteractiveKitGenerator: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+    const handleDownloadWord = () => {
+    const title = `${selectedKit.code} - ${selectedKit.title} - ${formData.municipio}`;
+    const wordHtml = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>${title}</title>
+        <style>
+          body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.4; color: #111; margin: 2.5cm; }
+          h1 { font-size: 15pt; color: #0A2540; border-bottom: 2pt solid #0A2540; padding-bottom: 4pt; margin-bottom: 12pt; text-transform: uppercase; }
+          p { font-size: 11pt; margin-bottom: 8pt; text-align: justify; }
+          pre { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; white-space: pre-wrap; }
+          .footer { font-size: 9pt; color: #64748b; border-top: 1pt solid #cbd5e1; padding-top: 6pt; margin-top: 25pt; }
+        </style>
+      </head>
+      <body>
+        <h1>${selectedKit.code}: ${selectedKit.title}</h1>
+        <p><strong>MUNICIPALIDAD:</strong> ${formData.municipio}</p>
+        <p><strong>SUSTENTO LEGAL:</strong> ${selectedKit.legalBasis}</p>
+        <hr style='border: none; border-top: 1pt solid #cbd5e1; margin: 15pt 0;'>
+        <pre>${generatedText}</pre>
+        <div class='footer'>
+          Instrumento generado por ProtegeDatosLocal · InnCivica Lab (protegedatoslocal.inncivica.cloud)
+        </div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedKit.code}_${formData.municipio.replace(/\s+/g, '_')}.doc`;
+    a.click();
+  };
+
   const handleDownload = () => {
     const element = document.createElement('a');
     const file = new Blob([generatedText], { type: 'text/markdown;charset=utf-8' });
@@ -462,10 +498,10 @@ export const InteractiveKitGenerator: React.FC = () => {
                   <span>{copied ? '✅ ¡Copiado!' : '📋 Copiar'}</span>
                 </button>
                 <button
-                  onClick={handleDownload}
+                  onClick={handleDownloadWord}
                   className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg shadow-xs transition cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>📥 Descargar .md</span>
+                  <span>📥 Descargar en Word (.doc)</span>
                 </button>
               </div>
             </div>
