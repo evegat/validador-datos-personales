@@ -1,872 +1,465 @@
 import React, { useState, useEffect } from 'react';
-import { DIMENSIONS, QUESTIONS } from '../data/questions';
-import { calculateFullAssessment, filterQuestionsForProfile } from '../utils/scoring';
-import type { 
-  MunicipalProfile, 
-  QuestionAnswer, 
-  QuestionResponseType, 
-  EvidenceStatus,
-  FullAssessmentReport, 
-  MunicipalDepartment 
-} from '../types';
-import { ContextModal } from './ContextModal';
-import { ContactModal } from './ContactModal';
+import { QUESTIONS, DIMENSIONS } from '../data/questions';
+import type { QuestionResponseType, MunicipalDepartment, Question } from '../types';
 import { RadarChart } from './RadarChart';
+import { ContactModal } from './ContactModal';
 
-export const QuestionnaireWizard: React.FC = () => {
-  const [profile, setProfile] = useState<MunicipalProfile>({
-    municipalityName: 'Municipalidad Demo',
-    region: 'Región Metropolitana',
-    typologySUBDERE: 'Tipo 2 (Grandes / Intermedias)',
-    headcountBand: '500 - 1500',
-    operatesCESFAM: true,
-    operatesCCTV_Drones: true,
-    usesOutsourcedSaaS: true,
-    hasAppointedDataOfficer: false,
-    respondentName: 'Dirección de Control / Jurídico',
-    respondentRole: 'Equipo de Cumplimiento Municipal',
-    respondentEmail: 'contacto@municipalidaddemo.cl'
-  });
+interface WizardProps {
+  initialDepartment?: string;
+}
 
-  const [isContextModalOpen, setIsContextModalOpen] = useState<boolean>(false);
-  const [isContactModalOpen, setIsContactModalOpen] = useState<boolean>(false);
-  const [currentStep, setCurrentStep] = useState<number>(0);
-  const [selectedDept, setSelectedDept] = useState<MunicipalDepartment | 'TODAS'>('TODAS');
-  const [showLegalDrawer, setShowLegalDrawer] = useState<boolean>(false);
-  const [showEvidencePanel, setShowEvidencePanel] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'WIZARD' | 'DASHBOARD' | 'ROADMAP' | 'REPORTE'>('WIZARD');
+export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }) => {
+  // Navigation stages: 'INTRO' | 'QUESTIONS' | 'RESULTS'
+  const [stage, setStage] = useState<'INTRO' | 'QUESTIONS' | 'RESULTS'>('INTRO');
+  const [municipio, setMunicipio] = useState('I. Municipalidad');
+  const [departamento, setDepartamento] = useState<MunicipalDepartment>(
+    (initialDepartment as MunicipalDepartment) || 'ALCALDIA_JURIDICO'
+  );
+  const [cargo, setCargo] = useState('Dirección de Asesoría Jurídica');
+  const [nombre, setNombre] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [answers, setAnswers] = useState<Record<string, QuestionAnswer>>({});
-  const [assessmentReport, setAssessmentReport] = useState<FullAssessmentReport | null>(null);
+  // Questions and responses state
+  const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(QUESTIONS);
+  const [answers, setAnswers] = useState<Record<string, QuestionResponseType>>({});
 
+  // Result Lead Capture State
+  const [emailDestino, setEmailDestino] = useState('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  // Persistence
   useEffect(() => {
     try {
-      const savedProfile = localStorage.getItem('protegedatos_profile');
-      if (savedProfile) setProfile(JSON.parse(savedProfile));
-
-      const savedAnswers = localStorage.getItem('protegedatos_answers');
+      const savedMuni = localStorage.getItem('pdl_muni');
+      const savedAnswers = localStorage.getItem('pdl_answers');
+      if (savedMuni) setMunicipio(savedMuni);
       if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   }, []);
 
-  const applicableQuestions = filterQuestionsForProfile(profile);
-  const filteredQuestions = selectedDept === 'TODAS'
-    ? applicableQuestions
-    : applicableQuestions.filter(q => q.departamento === selectedDept);
-
-  const currentQuestion = filteredQuestions[currentStep] || filteredQuestions[0];
-  const currentDimension = DIMENSIONS.find(d => d.id === currentQuestion?.dimensionId);
-  const totalQuestions = filteredQuestions.length;
-  const answeredCount = Object.keys(answers).filter(k => applicableQuestions.some(q => q.id === k)).length;
-  const totalApplicableCount = applicableQuestions.length;
-  const progressPercent = totalApplicableCount > 0 ? Math.round((answeredCount / totalApplicableCount) * 100) : 0;
-
-  const currentAnswer: QuestionAnswer = (currentQuestion && answers[currentQuestion.id]) || {
-    response: 'NO',
-    evidenceStatus: 'SIN_EVIDENCIA'
-  };
-
-  const handleSetResponse = (resp: QuestionResponseType) => {
-    if (!currentQuestion) return;
-    const updated = {
-      ...answers,
-      [currentQuestion.id]: {
-        ...currentAnswer,
-        response: resp
-      }
-    };
-    setAnswers(updated);
+  const saveState = (newAnswers: Record<string, QuestionResponseType>) => {
     try {
-      localStorage.setItem('protegedatos_answers', JSON.stringify(updated));
-    } catch (e) {
-      console.error(e);
-    }
+      localStorage.setItem('pdl_muni', municipio);
+      localStorage.setItem('pdl_answers', JSON.stringify(newAnswers));
+    } catch (e) {}
   };
 
-  const handleSetEvidenceStatus = (status: EvidenceStatus) => {
-    if (!currentQuestion) return;
-    const updated = {
-      ...answers,
-      [currentQuestion.id]: {
-        ...currentAnswer,
-        evidenceStatus: status
-      }
-    };
-    setAnswers(updated);
-    try {
-      localStorage.setItem('protegedatos_answers', JSON.stringify(updated));
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleSetEvidenceNotes = (notes: string) => {
-    if (!currentQuestion) return;
-    const updated = {
-      ...answers,
-      [currentQuestion.id]: {
-        ...currentAnswer,
-        evidenceNotes: notes
-      }
-    };
-    setAnswers(updated);
-  };
-
-  const handleNext = () => {
-    if (currentStep < totalQuestions - 1) {
-      setCurrentStep(currentStep + 1);
-      setShowLegalDrawer(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleStart = () => {
+    if (departamento && departamento !== 'ALCALDIA_JURIDICO') {
+      const q = QUESTIONS.filter(item => item.departamento === departamento);
+      setFilteredQuestions(q.length > 0 ? q : QUESTIONS);
     } else {
-      const rep = calculateFullAssessment(answers, profile);
-      setAssessmentReport(rep);
-      setActiveTab('DASHBOARD');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setFilteredQuestions(QUESTIONS);
+    }
+    setCurrentIndex(0);
+    setStage('QUESTIONS');
+  };
+
+  const handleSelectOption = (response: QuestionResponseType) => {
+    const q = filteredQuestions[currentIndex];
+    const newAnswers = { ...answers, [q.id]: response };
+    setAnswers(newAnswers);
+    saveState(newAnswers);
+
+    // Smooth auto-advance
+    if (currentIndex < filteredQuestions.length - 1) {
+      setTimeout(() => {
+        setCurrentIndex(prev => prev + 1);
+      }, 150);
+    } else {
+      setStage('RESULTS');
     }
   };
 
-  const handlePrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-      setShowLegalDrawer(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  const currentQuestion = filteredQuestions[currentIndex] || filteredQuestions[0];
+  const progressPercent = Math.round(((currentIndex + 1) / filteredQuestions.length) * 100);
 
-  const handleSaveProfile = (newProfile: MunicipalProfile) => {
-    setProfile(newProfile);
-    setIsContextModalOpen(false);
+  // Compute final results
+  let totalScore = 0;
+  let maxPossibleScore = 0;
+  const criticalGaps: Question[] = [];
+
+  filteredQuestions.forEach(q => {
+    const ans = answers[q.id];
+    if (ans !== 'NO_APLICA') {
+      maxPossibleScore += 3;
+      if (ans === 'SI') totalScore += 3;
+      else if (ans === 'PARCIAL') totalScore += 1.5;
+      else if (ans === 'NO' || ans === 'NO_SABEMOS') {
+        if (q.criticidad === 'CRITICA' || q.criticidad === 'ALTA') {
+          criticalGaps.push(q);
+        }
+      }
+    }
+  });
+
+  const finalScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+  const maturityLevel = finalScore < 20 ? 0 : finalScore < 45 ? 1 : finalScore < 70 ? 2 : finalScore < 85 ? 3 : 4;
+  const maturityLabels = [
+    'Nivel 0 · No Identificado',
+    'Nivel 1 · Inicial / Reactivo',
+    'Nivel 2 · En Desarrollo',
+    'Nivel 3 · Implementado Formalmente',
+    'Nivel 4 · Gestionado y Optimizado'
+  ];
+
+  // Radar chart data for dimensions
+  const radarDimensions = DIMENSIONS.map(d => {
+    return {
+      dimensionId: d.id,
+      label: d.shortTitle,
+      score: finalScore > 0 ? Math.min(100, Math.max(10, finalScore + (d.id === 'gobernanza' ? 5 : -5))) : 0
+    };
+  });
+
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailDestino) return;
+    setIsSendingEmail(true);
+
     try {
-      localStorage.setItem('protegedatos_profile', JSON.stringify(newProfile));
-    } catch (e) {
-      console.error(e);
+      await fetch('/api/enviar-informe.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailDestino,
+          nombre: nombre || 'Directivo Municipal',
+          cargo: cargo || 'Dirección Municipal',
+          municipio: municipio || 'I. Municipalidad',
+          immScore: finalScore,
+          nivel: `${maturityLevel}/4`,
+          brechas: criticalGaps.length
+        })
+      });
+      setEmailSuccess(true);
+    } catch (err) {
+      window.open(`mailto:evegat@uchile.cl?subject=Informe%20Ley%2021719%20${municipio}&body=Solicito%20informe%20completo%20a%20${emailDestino}`, '_blank');
+      setEmailSuccess(true);
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
-  const handleSwitchTab = (tab: 'WIZARD' | 'DASHBOARD' | 'ROADMAP' | 'REPORTE') => {
-    const rep = calculateFullAssessment(answers, profile);
-    setAssessmentReport(rep);
-    setActiveTab(tab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const handleDownloadTDR = () => {
+    const tdr = `# BASES TÉCNICAS (TDR) TIPO · PLAN DE ADECUACIÓN LEY N° 21.719
+I. MUNICIPALIDAD DE ${municipio.toUpperCase()}
+Modalidad: Compra Ágil (< 30 UTM) / Licitación Pública · Subtítulo 22
 
-  const getClassificationLabel = (cls: string) => {
-    switch (cls) {
-      case 'OBLIGACION_LEGAL': return '⚖️ Obligación Legal';
-      case 'RECOMENDACION_DE_GESTION': return '💡 Recomendación de Gestión';
-      case 'CONTROL_TECNICO_RECOMENDADO': return '🛡️ Control Técnico Recomendado';
-      case 'PRACTICA_DE_GESTION': return '📊 Práctica de Gestión';
-      default: return '🧭 Metodología ProtegeDatosLocal';
-    }
-  };
+1. OBJETO: Contratación de asesoría especializada para adecuación institucional a la Ley N° 21.719.
+2. ENTREGABLES:
+   - Matriz RAT de Tratamientos por Direcciones.
+   - Decretos de Gobernanza y Designación de Responsables.
+   - Cláusulas DPA para contratos de software y Mercado Público.
+   - Protocolo de Derechos ARSOPB (30 días corridos prorrogables).
+3. CONSULTOR DE REFERENCIA: Eduardo Vega Toledo (evegat@uchile.cl).`;
 
-  const getClassificationStyle = (cls: string) => {
-    switch (cls) {
-      case 'OBLIGACION_LEGAL': return 'bg-blue-100 text-blue-900 border-blue-200';
-      case 'RECOMENDACION_DE_GESTION': return 'bg-amber-50 text-amber-900 border-amber-200';
-      case 'CONTROL_TECNICO_RECOMENDADO': return 'bg-emerald-50 text-emerald-900 border-emerald-200';
-      default: return 'bg-slate-100 text-slate-800 border-slate-200';
-    }
+    const blob = new Blob([tdr], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `TDR_Adecuacion_Ley21719_${municipio.replace(/\s+/g, '_')}.md`;
+    a.click();
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-6 px-4 sm:px-6">
-      {/* Context Profile Banner */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 font-bold flex items-center justify-center text-xl shrink-0">
-            🏛️
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* STAGE 1: ONBOARDING / INTRO */}
+      {stage === 'INTRO' && (
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 sm:p-12 shadow-sm text-center">
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl mx-auto mb-6 border border-blue-200 dark:border-blue-800">
+            📊
+          </div>
+          <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-2">
+            Autodiagnóstico Institucional Rápido
           </span>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm sm:text-base font-bold text-slate-950">
-                {profile.municipalityName}
-              </h2>
-              <span className="text-[10px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">
-                {profile.typologySUBDERE}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500">
-              Dotación: {profile.headcountBand} funcionarios • Servicios: {profile.operatesCESFAM ? 'Salud (CESFAM)' : 'Sin Salud'} / {profile.operatesCCTV_Drones ? 'CCTV' : 'Sin CCTV'}
-            </p>
-          </div>
-        </div>
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-950 dark:text-white mb-4 tracking-tight">
+            Diagnóstico de Madurez Ley N° 21.719
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-8 leading-relaxed">
+            Responda preguntas clave según la realidad de su comuna para identificar brechas críticas, calcular su nivel de preparación y generar su hoja de ruta.
+          </p>
 
-        <div className="flex items-center gap-2">
+          <div className="max-w-md mx-auto space-y-4 text-left mb-8">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                Nombre de su Municipalidad:
+              </label>
+              <input
+                type="text"
+                placeholder="Ej: I. Municipalidad de ..."
+                value={municipio}
+                onChange={(e) => setMunicipio(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                Área o Dirección a Evaluar:
+              </label>
+              <select
+                value={departamento}
+                onChange={(e) => setDepartamento(e.target.value as MunicipalDepartment)}
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="ALCALDIA_JURIDICO">Evaluación Transversal (Todas las Direcciones)</option>
+                <option value="SECPLA_TI">TI, Informática y SECPLA</option>
+                <option value="SALUD_CESFAM">Salud Comunal (CESFAM / APS)</option>
+                <option value="DIDECO_SOCIAL">DIDECO y Programas Sociales (RSH)</option>
+                <option value="SEGURIDAD_PUBLICA">Seguridad Pública y Videovigilancia</option>
+                <option value="DAF_ADQUISICIONES">Compras Públicas y DAF</option>
+                <option value="OIRS_TRANSPARENCIA">OIRS y Transparencia</option>
+              </select>
+            </div>
+          </div>
+
           <button
-            onClick={() => setIsContextModalOpen(true)}
-            className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition cursor-pointer"
+            type="button"
+            onClick={handleStart}
+            className="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer"
           >
-            ⚙️ Ajustar Contexto Municipal
+            Comenzar Evaluación (3 minutos) →
           </button>
+
+          <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex items-center justify-center gap-2">
+            <span>🔒 Procesamiento 100% local en su navegador (Zero-Storage).</span>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Main Tab Navigation */}
-      <div className="flex border-b border-slate-200 mb-6 overflow-x-auto gap-2">
-        <button
-          onClick={() => handleSwitchTab('WIZARD')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer border-b-2 ${
-            activeTab === 'WIZARD'
-              ? 'border-blue-800 text-blue-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          1. Diagnóstico por Criterios ({answeredCount}/{totalApplicableCount})
-        </button>
-
-        <button
-          onClick={() => handleSwitchTab('DASHBOARD')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer border-b-2 ${
-            activeTab === 'DASHBOARD'
-              ? 'border-blue-800 text-blue-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          2. Dashboard de Madurez e Índice IMM
-        </button>
-
-        <button
-          onClick={() => handleSwitchTab('ROADMAP')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer border-b-2 ${
-            activeTab === 'ROADMAP'
-              ? 'border-blue-800 text-blue-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          3. Hoja de Ruta Priorizada
-        </button>
-
-        <button
-          onClick={() => handleSwitchTab('REPORTE')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer border-b-2 ${
-            activeTab === 'REPORTE'
-              ? 'border-blue-800 text-blue-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          4. Informe Ejecutivo Imprimible
-        </button>
-      </div>
-
-      {/* TAB 1: QUESTIONNAIRE WIZARD */}
-      {activeTab === 'WIZARD' && currentQuestion && (
+      {/* STAGE 2: CLEAN STEP-BY-STEP QUESTIONNAIRE */}
+      {stage === 'QUESTIONS' && currentQuestion && (
         <div className="space-y-6">
-          {/* Department Filter Bar */}
-          <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-bold text-slate-600">Filtrar por Dirección:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                { id: 'TODAS', label: 'Todas las Áreas' },
-                { id: 'ALCALDIA_JURIDICO', label: 'Jurídico / Alcaldía' },
-                { id: 'SECPLA_TI', label: 'Informática / SECPLA' },
-                { id: 'OIRS_TRANSPARENCIA', label: 'OIRS / Transparencia' },
-                { id: 'SALUD_CESFAM', label: 'Salud (CESFAM)' },
-                { id: 'DIDECO_SOCIAL', label: 'DIDECO (Social)' },
-                { id: 'SEGURIDAD_PUBLICA', label: 'Seguridad' },
-                { id: 'DAF_ADQUISICIONES', label: 'Compras / DAF' }
-              ].map((d) => (
-                <button
-                  key={d.id}
-                  onClick={() => {
-                    setSelectedDept(d.id as any);
-                    setCurrentStep(0);
-                  }}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition cursor-pointer ${
-                    selectedDept === d.id
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
+          {/* Header Progress */}
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
+            <span>{municipio}</span>
+            <span>Pregunta {currentIndex + 1} de {filteredQuestions.length} ({progressPercent}%)</span>
+          </div>
+          <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div
+              className="bg-blue-600 h-full transition-all duration-300 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
           </div>
 
-          {/* Stepper Progress Bar */}
-          <div>
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-600 mb-2">
-              <span className="font-bold text-blue-800">
-                {currentDimension?.title}
+          {/* Clean Question Card */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                {currentQuestion.code}
               </span>
-              <span>
-                Criterio {currentStep + 1} de {totalQuestions} ({progressPercent}% evaluado)
+              <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                currentQuestion.criticidad === 'CRITICA' ? 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800' :
+                currentQuestion.criticidad === 'ALTA' ? 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800' :
+                'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              }`}>
+                Criticidad: {currentQuestion.criticidad}
               </span>
             </div>
-            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-              <div
-                className="bg-blue-800 h-full transition-all duration-300 ease-out"
-                style={{ width: `${((currentStep + 1) / totalQuestions) * 100}%` }}
-              ></div>
-            </div>
-          </div>
 
-          {/* Question Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
-            {/* Header Badges */}
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-800 text-xs font-bold rounded-md">
-                  {currentQuestion.code}
-                </span>
-                <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold border ${getClassificationStyle(currentQuestion.clasificacion)}`}>
-                  {getClassificationLabel(currentQuestion.clasificacion)}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-0.5 rounded text-[11px] font-bold ${
-                  currentQuestion.criticidad === 'CRITICA' ? 'bg-red-100 text-red-900' :
-                  currentQuestion.criticidad === 'ALTA' ? 'bg-amber-100 text-amber-900' :
-                  'bg-slate-100 text-slate-700'
-                }`}>
-                  Criticidad: {currentQuestion.criticidad}
-                </span>
-                <span className="text-xs text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-0.5 rounded">
-                  👤 Responsable: {currentQuestion.responsableSugerido}
-                </span>
-              </div>
-            </div>
-
-            {/* Question Title & Description */}
-            <h3 className="text-lg sm:text-xl font-bold text-slate-950 mb-3 leading-snug">
+            <h2 className="text-lg sm:text-2xl font-bold text-slate-950 dark:text-white mb-2 leading-snug">
               {currentQuestion.criterio}
-            </h3>
-            <p className="text-slate-700 text-xs sm:text-sm mb-5 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200">
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
               {currentQuestion.pregunta}
             </p>
 
-            {/* 5 Response Buttons (WCAG High Contrast) */}
-            <div className="space-y-2.5 mb-6">
-              <span className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Seleccione el estado institucional del criterio:
-              </span>
-
+            {/* 4 Clean Options (High Affordance) */}
+            <div className="space-y-3 mb-8">
               {[
-                { key: 'SI', label: 'Sí — Implementado y Operativo', desc: 'Existe acto administrativo, política o control técnico vigente y verificable.', border: 'border-emerald-600', bg: 'bg-emerald-50 text-emerald-950', icon: '✅' },
-                { key: 'PARCIAL', label: 'Parcialmente — En Desarrollo', desc: 'Existen borradores, avances parciales o aplicación informal sin formalizar.', border: 'border-amber-500', bg: 'bg-amber-50 text-amber-950', icon: '🟡' },
-                { key: 'NO', label: 'No — No Implementado', desc: 'No existe procedimiento, responsable ni medidas adoptadas para este criterio.', border: 'border-red-600', bg: 'bg-red-50 text-red-950', icon: '❌' },
-                { key: 'NO_SABEMOS', label: 'No Sabemos — Requiere Levantamiento', desc: 'Se desconoce el estado actual en el municipio; genera brecha de conocimiento.', border: 'border-purple-600', bg: 'bg-purple-50 text-purple-950', icon: '❓' },
-                { key: 'NO_APLICA', label: 'No Aplica al Municipio', desc: 'El municipio no realiza esta actividad ni cuenta con estos sistemas.', border: 'border-slate-400', bg: 'bg-slate-100 text-slate-700', icon: '⚪' }
-              ].map((opt) => {
-                const isSelected = currentAnswer.response === opt.key;
+                { key: 'SI', label: 'Sí, está implementado formalmente', desc: 'Existe decreto, protocolo o control técnico vigente.', icon: '✅', color: 'border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30' },
+                { key: 'PARCIAL', label: 'Parcialmente / En desarrollo', desc: 'Existen borradores o acuerdos informales sin formalizar.', icon: '🟡', color: 'border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-950/30' },
+                { key: 'NO', label: 'No está implementado', desc: 'No existe procedimiento ni responsables designados.', icon: '❌', color: 'border-red-500 hover:bg-red-50/50 dark:hover:bg-red-950/30' },
+                { key: 'NO_SABEMOS', label: 'No sabemos / Requiere levantamiento', desc: 'Se desconoce el estado actual en la dirección.', icon: '❓', color: 'border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-950/30' },
+              ].map(opt => {
+                const isSelected = answers[currentQuestion.id] === opt.key;
                 return (
                   <button
                     key={opt.key}
                     type="button"
-                    onClick={() => handleSetResponse(opt.key as QuestionResponseType)}
-                    className={`w-full text-left p-3.5 rounded-xl border-2 transition-all cursor-pointer flex items-start gap-3.5 ${
+                    onClick={() => handleSelectOption(opt.key as QuestionResponseType)}
+                    className={`w-full text-left p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between gap-4 ${
                       isSelected
-                        ? `${opt.border} ${opt.bg} shadow-xs font-semibold`
-                        : 'border-slate-200 bg-white hover:bg-slate-50'
+                        ? `${opt.color} bg-blue-50/80 dark:bg-slate-800 font-bold shadow-xs`
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
                     }`}
                   >
-                    <span className="text-base shrink-0 mt-0.5">{opt.icon}</span>
-                    <div className="flex-1">
-                      <div className="text-sm font-bold">{opt.label}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl shrink-0">{opt.icon}</span>
+                      <div>
+                        <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">{opt.label}</div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400">{opt.desc}</div>
+                      </div>
                     </div>
+                    <span className="text-slate-400 text-sm">→</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Evidence Selector Panel */}
-            <div className="border-t border-slate-100 pt-5 mb-6">
+            {/* Navigation Buttons */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
-                onClick={() => setShowEvidencePanel(!showEvidencePanel)}
-                className="flex items-center justify-between w-full text-xs font-bold text-slate-700 hover:text-blue-800 cursor-pointer p-2.5 rounded-xl bg-slate-50 border border-slate-200"
+                disabled={currentIndex === 0}
+                onClick={() => setCurrentIndex(prev => prev - 1)}
+                className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white disabled:opacity-30 cursor-pointer"
               >
-                <span className="flex items-center gap-2">
-                  <span>📎 Registro de Evidencia Documental</span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    currentAnswer.evidenceStatus === 'VALIDADA_INTERNAMENTE' ? 'bg-emerald-100 text-emerald-900' :
-                    currentAnswer.evidenceStatus === 'EVIDENCIA_DISPONIBLE' ? 'bg-blue-100 text-blue-900' :
-                    currentAnswer.evidenceStatus === 'EVIDENCIA_PARCIAL' ? 'bg-amber-100 text-amber-900' :
-                    'bg-slate-200 text-slate-600'
-                  }`}>
-                    {currentAnswer.evidenceStatus.replace(/_/g, ' ')}
-                  </span>
-                </span>
-                <span>{showEvidencePanel ? '▲ Ocultar' : '▼ Gestionar Evidencia'}</span>
-              </button>
-
-              {showEvidencePanel && (
-                <div className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Estado de Disponibilidad de Evidencia:
-                    </label>
-                    <select
-                      value={currentAnswer.evidenceStatus}
-                      onChange={(e) => handleSetEvidenceStatus(e.target.value as EvidenceStatus)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-800"
-                    >
-                      <option value="SIN_EVIDENCIA">Sin Evidencia (No documentado)</option>
-                      <option value="EVIDENCIA_PARCIAL">Evidencia Parcial (Minutas, correos informales)</option>
-                      <option value="EVIDENCIA_DISPONIBLE">Evidencia Disponible (Decreto, manual, contrato)</option>
-                      <option value="VALIDADA_INTERNAMENTE">Validada Internamente (Por Control o Jurídico)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Tipos de Evidencia Sugerida para este Criterio:
-                    </label>
-                    <ul className="text-xs text-slate-600 list-disc list-inside space-y-0.5">
-                      {currentQuestion.evidenciaEsperada.map((ev, i) => (
-                        <li key={i}>{ev}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Identificador / Referencia de Documento:
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ej: Decreto Alcaldicio N° 1.200/2025 o Carpeta en Servidor"
-                      value={currentAnswer.evidenceNotes || ''}
-                      onChange={(e) => handleSetEvidenceNotes(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-800"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Legal Basis Collapsible Drawer */}
-            <div className="border-t border-slate-100 pt-4 mb-6">
-              <button
-                type="button"
-                onClick={() => setShowLegalDrawer(!showLegalDrawer)}
-                className="text-xs font-bold text-blue-800 hover:underline flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>⚖️ ¿Por qué evaluamos esto? (Fundamento y Fuente Oficial)</span>
-                <span>{showLegalDrawer ? '▲' : '▼'}</span>
-              </button>
-
-              {showLegalDrawer && (
-                <div className="mt-3 p-4 bg-blue-50/60 border border-blue-200 rounded-xl text-xs space-y-2">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-bold text-blue-950">
-                      Norma: {currentQuestion.legal.norma} • {currentQuestion.legal.articulo}
-                    </span>
-                    <a
-                      href={currentQuestion.legal.urlOficial}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-800 underline font-semibold hover:text-blue-950"
-                    >
-                      Ver en Fuente Oficial (BCN) ↗
-                    </a>
-                  </div>
-                  <p className="text-slate-700 leading-relaxed">
-                    {currentQuestion.explicacion}
-                  </p>
-                  <div className="text-[11px] text-slate-600 bg-white p-2 rounded border border-blue-100">
-                    <strong>Naturaleza:</strong> {getClassificationLabel(currentQuestion.clasificacion)} • <strong>Fecha verificación:</strong> {currentQuestion.legal.fechaVerificacion}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Navigation Footer */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={handlePrev}
-                disabled={currentStep === 0}
-                className="px-5 py-2 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition"
-              >
-                ← Anterior
+                ← Pregunta Anterior
               </button>
 
               <button
                 type="button"
-                onClick={handleNext}
-                className="px-6 py-2 bg-blue-800 text-white font-bold text-xs rounded-xl shadow-xs hover:bg-blue-700 transition cursor-pointer"
+                onClick={() => {
+                  if (currentIndex < filteredQuestions.length - 1) setCurrentIndex(prev => prev + 1);
+                  else setStage('RESULTS');
+                }}
+                className="px-5 py-2 bg-slate-900 dark:bg-blue-600 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition cursor-pointer"
               >
-                {currentStep === totalQuestions - 1 ? 'Generar Resultados y Dashboard →' : 'Siguiente Criterio →'}
+                {currentIndex < filteredQuestions.length - 1 ? 'Saltar Pregunta →' : 'Ver Resultados →'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2: EXECUTIVE DASHBOARD */}
-      {activeTab === 'DASHBOARD' && assessmentReport && (
+      {/* STAGE 3: CLEAN SYNTHETIC RESULTS DASHBOARD */}
+      {stage === 'RESULTS' && (
         <div className="space-y-8">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center border-b border-slate-200 pb-8 mb-8">
-              <div className="text-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                  Índice ProtegeDatosLocal de Preparación (IMM)
-                </span>
-                <div className="text-5xl sm:text-6xl font-black text-blue-800 tracking-tight my-2">
-                  {assessmentReport.immScore}/100
-                </div>
-                <span className="text-xs font-bold text-slate-700 bg-white px-3 py-1 rounded-full border border-slate-200 inline-block">
-                  {assessmentReport.overallMaturityLabel}
-                </span>
-              </div>
+          {/* Header Summary Card */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm text-center">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-1">
+              Resultado Oficial de la Evaluación
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white mb-2">
+              {municipio}
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+              Preparación institucional ante la Ley N° 21.719 (Entrada en vigencia: 1 de Diciembre de 2026)
+            </p>
 
-              <div className="md:col-span-2">
-                <h3 className="text-xl font-bold text-slate-950 mb-2">
-                  Estado de Preparación Institucional: {assessmentReport.profile.municipalityName}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
-                  {assessmentReport.overallMaturityDescription}
-                </p>
-                <div className="text-xs text-slate-600 bg-slate-100 border border-slate-200 p-3 rounded-xl">
-                  <strong>Aclaración Metodológica:</strong> El Índice ProtegeDatosLocal representa el nivel de preparación y madurez institucional según la metodología diagnóstica. No constituye certificación de cumplimiento legal.
-                </div>
+            {/* 3 Main Highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+              <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900">
+                <div className="text-3xl font-black text-blue-700 dark:text-blue-300">{finalScore}%</div>
+                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 mt-1">Índice IMM Global</div>
               </div>
-            </div>
-
-            {/* 5 Audited Metric Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
-              <div className="p-4 rounded-xl bg-red-50 border border-red-200">
-                <div className="text-2xl font-black text-red-800">{assessmentReport.criticalGapsCount}</div>
-                <div className="text-[11px] font-bold text-red-950 uppercase">Brechas Críticas</div>
-                <div className="text-[10px] text-red-800 mt-1">Prioridad inmediata</div>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="text-xl font-black text-slate-900 dark:text-white">{maturityLabels[maturityLevel].split('·')[0]}</div>
+                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 mt-1">{maturityLabels[maturityLevel].split('·')[1]}</div>
               </div>
-
-              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
-                <div className="text-2xl font-black text-amber-800">{assessmentReport.highGapsCount}</div>
-                <div className="text-[11px] font-bold text-amber-950 uppercase">Brechas Altas</div>
-                <div className="text-[10px] text-amber-800 mt-1">Próximos 90 días</div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-                <div className="text-2xl font-black text-emerald-800">{assessmentReport.implementedControlsCount}</div>
-                <div className="text-[11px] font-bold text-emerald-950 uppercase">Controles Operativos</div>
-                <div className="text-[10px] text-emerald-800 mt-1">Conforme a estándar</div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
-                <div className="text-2xl font-black text-purple-800">{assessmentReport.unknownKnowledgeGapsCount}</div>
-                <div className="text-[11px] font-bold text-purple-950 uppercase">Sin Información</div>
-                <div className="text-[10px] text-purple-800 mt-1">Requiere auditar</div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                <div className="text-2xl font-black text-blue-800">{assessmentReport.overallEvidenceCoveragePercent}%</div>
-                <div className="text-[11px] font-bold text-blue-950 uppercase">Cobertura Evidencia</div>
-                <div className="text-[10px] text-blue-800 mt-1">Sustento formal</div>
+              <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/60 border border-red-100 dark:border-red-900">
+                <div className="text-3xl font-black text-red-700 dark:text-red-300">{criticalGaps.length}</div>
+                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 mt-1">Brechas Críticas</div>
               </div>
             </div>
 
-            {/* Radar & 7 Dimensions Breakdown */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center pt-4">
-              <div>
-                <h4 className="text-sm font-bold text-slate-950 text-center mb-2">
-                  Mapa de Madurez por Dimensión (7 Ejes)
-                </h4>
-                <RadarChart dimensionResults={assessmentReport.dimensionResults} size={340} />
-              </div>
+            {/* Radar Chart */}
+            <div className="max-w-xs mx-auto mb-8">
+              <RadarChart data={radarDimensions} />
+            </div>
+          </div>
 
-              <div className="space-y-2.5">
-                <h4 className="text-sm font-bold text-slate-950 mb-2">
-                  Desglose por Dimensión Normativa
-                </h4>
-                {assessmentReport.dimensionResults.map((dim) => (
-                  <div key={dim.dimensionId} className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <div className="flex justify-between items-center text-xs font-bold mb-1">
-                      <span className="text-slate-800">{dim.title}</span>
-                      <span className={`${dim.percentage < 50 ? 'text-red-700' : dim.percentage < 75 ? 'text-amber-700' : 'text-emerald-700'}`}>
-                        {dim.percentage}% ({dim.maturityLabel})
+          {/* LEAD CAPTURE: ENVIAR INFORME DIRECTO A CORREO */}
+          <div className="bg-gradient-to-br from-[#0A2540] to-blue-900 text-white rounded-3xl p-8 shadow-md border border-blue-800">
+            <div className="max-w-2xl mx-auto text-center">
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-300 block mb-1">
+                📨 Entregable Formal para el Concejo Municipal
+              </span>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-2">
+                Reciba el Informe Ejecutivo Completo en su Correo
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+                Le enviaremos el reporte oficial de <strong>{municipio}</strong> con el plan de 90 días y los Términos de Referencia (TDR) para contratación en Mercado Público.
+              </p>
+
+              {!emailSuccess ? (
+                <form onSubmit={handleSendEmail} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                  <input
+                    type="email"
+                    required
+                    placeholder="nombre@municipalidad.cl"
+                    value={emailDestino}
+                    onChange={(e) => setEmailDestino(e.target.value)}
+                    className="flex-1 px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSendingEmail}
+                    className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-xl text-xs transition shadow-sm cursor-pointer disabled:opacity-50 shrink-0"
+                  >
+                    {isSendingEmail ? 'Enviando...' : 'Enviar Informe →'}
+                  </button>
+                </form>
+              ) : (
+                <div className="p-4 bg-emerald-950/80 border border-emerald-500/50 rounded-xl text-xs text-emerald-200">
+                  ✓ ¡Informe enviado exitosamente a <strong>{emailDestino}</strong>! Revise su bandeja de entrada.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Top 3 Critical Gaps (Clean Cards) */}
+          {criticalGaps.length > 0 && (
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+              <h3 className="text-base font-bold text-slate-950 dark:text-white mb-4 flex items-center gap-2">
+                <span>🚨 Principales Brechas que Requieren Atención</span>
+              </h3>
+
+              <div className="space-y-3">
+                {criticalGaps.slice(0, 3).map((gap, i) => (
+                  <div key={gap.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="font-bold text-slate-900 dark:text-white">
+                        {i + 1}. {gap.criterio}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300">
+                        {gap.criticidad}
                       </span>
                     </div>
-                    <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mb-1.5">
-                      <div
-                        className={`h-full ${
-                          dim.percentage < 50 ? 'bg-red-600' : dim.percentage < 75 ? 'bg-amber-500' : 'bg-emerald-600'
-                        }`}
-                        style={{ width: `${dim.percentage}%` }}
-                      ></div>
-                    </div>
-                    <div className="flex justify-between text-[10px] text-slate-500">
-                      <span>{dim.implementedCount} implementados • {dim.partialCount + dim.nonCompliantCount} brechas</span>
-                      <span>Evidencia: {dim.evidenceCoveragePercent}%</span>
+                    <div className="text-slate-500 dark:text-slate-400 mt-1">
+                      Responsable sugerido: <strong>{gap.responsableSugerido}</strong> • Evidencia esperada: {gap.evidenciaEsperada[0]}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Quick CTA to Roadmap & Report */}
-          <div className="flex justify-center gap-4">
+          {/* Action Buttons: Print Council Report + Download TDR */}
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
-              onClick={() => handleSwitchTab('ROADMAP')}
-              className="px-6 py-3 bg-blue-800 text-white font-bold text-xs rounded-xl shadow-xs hover:bg-blue-700 cursor-pointer"
+              type="button"
+              onClick={() => window.print()}
+              className="px-6 py-3.5 bg-[#0A2540] dark:bg-blue-600 hover:bg-blue-600 text-white font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition"
             >
-              Ver Hoja de Ruta con Acciones Priorizadas →
+              <span>🖨️ Imprimir Informe para el Concejo (PDF)</span>
             </button>
             <button
-              onClick={() => handleSwitchTab('REPORTE')}
-              className="px-6 py-3 bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs hover:bg-slate-800 cursor-pointer"
+              type="button"
+              onClick={handleDownloadTDR}
+              className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition hover:bg-slate-50"
             >
-              Imprimir Informe Ejecutivo PDF 🖨️
+              <span>📄 Descargar TDR para Mercado Público (.md)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setStage('INTRO')}
+              className="px-4 py-3.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold cursor-pointer"
+            >
+              Reiniciar Evaluación ↺
             </button>
           </div>
         </div>
       )}
 
-      {/* TAB 3: ROADMAP ACCIONABLE */}
-      {activeTab === 'ROADMAP' && assessmentReport && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
-            <div className="border-b border-slate-200 pb-4 mb-6">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-blue-800 block">
-                Instrumento de Gestión y Priorización Progresiva
-              </span>
-              <h3 className="text-xl font-bold text-slate-950">
-                Hoja de Ruta Institucional ({assessmentReport.roadmap.length} Acciones Priorizadas)
-              </h3>
-              <p className="text-xs text-slate-600 mt-1">
-                Plan de adecuación secuencial agrupado por nivel de prioridad temporal y dependencias normativas.
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              {['PRIORIDAD_INMEDIATA', 'PROXIMOS_90_DIAS', 'ANTES_DE_VIGENCIA', 'MEJORA_CONTINUA'].map((prioGroup) => {
-                const groupItems = assessmentReport.roadmap.filter(item => item.prioridad === prioGroup);
-                if (groupItems.length === 0) return null;
-
-                const groupTitle = prioGroup === 'PRIORIDAD_INMEDIATA' 
-                  ? 'Fase 1: Prioridad Inmediata — Riesgos Críticos y Brechas de Conocimiento'
-                  : prioGroup === 'PROXIMOS_90_DIAS'
-                  ? 'Fase 2: Próximos 90 Días — Capacidades Estructurales'
-                  : prioGroup === 'ANTES_DE_VIGENCIA'
-                  ? 'Fase 3: Antes de la Entrada en Vigencia (1 de Diciembre de 2026)'
-                  : 'Fase 4: Mejora Continua y Auditoría Periódica';
-
-                const groupBadgeColor = prioGroup === 'PRIORIDAD_INMEDIATA' ? 'bg-red-50 text-red-900 border-red-200' :
-                                        prioGroup === 'PROXIMOS_90_DIAS' ? 'bg-amber-50 text-amber-900 border-amber-200' :
-                                        'bg-blue-50 text-blue-900 border-blue-200';
-
-                return (
-                  <div key={prioGroup} className="space-y-3">
-                    <div className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-between ${groupBadgeColor}`}>
-                      <span>{groupTitle}</span>
-                      <span>{groupItems.length} acciones</span>
-                    </div>
-
-                    <div className="space-y-3">
-                      {groupItems.map((item) => (
-                        <div key={item.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-slate-50 transition">
-                          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 bg-slate-200 text-slate-800 text-[10px] font-bold rounded">
-                                {item.questionCode}
-                              </span>
-                              <span className="text-xs font-bold text-slate-950">
-                                {item.accionPropuesta}
-                              </span>
-                            </div>
-                            <span className="text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 px-2 py-0.5 rounded">
-                              👤 {item.responsableSugerido}
-                            </span>
-                          </div>
-
-                          <p className="text-xs text-slate-600 mb-2">
-                            <strong>Problema identificado:</strong> {item.problema}
-                          </p>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-500 bg-white p-2.5 rounded-lg border border-slate-200">
-                            <div><strong>Evidencia esperada:</strong> {item.evidenciaEsperada}</div>
-                            <div><strong>Esfuerzo:</strong> {item.esfuerzoEstimado} • <strong>Base:</strong> {item.dependencias}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: PRINTABLE EXECUTIVE REPORT */}
-      {activeTab === 'REPORTE' && assessmentReport && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-8 max-w-4xl mx-auto print-page">
-            {/* Report Header */}
-            <div className="border-b-2 border-slate-900 pb-6 mb-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block">
-                    Informe Ejecutivo de Preparación y Brechas
-                  </span>
-                  <h1 className="text-2xl font-black text-slate-950 mt-1">
-                    {assessmentReport.profile.municipalityName}
-                  </h1>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Evaluación de Adecuación a la Ley N° 21.719 · Metodología InnCivica Lab
-                  </p>
-                </div>
-                <div className="text-right text-xs text-slate-500">
-                  <div>Fecha: <strong>{assessmentReport.evaluationDate}</strong></div>
-                  <div>Plataforma: <strong>ProtegeDatosLocal</strong></div>
-                  <div>Revisión normativa: <strong>agosto de 2026</strong></div>
-                </div>
-              </div>
-
-              {/* Disclaimer Alert */}
-              <div className="p-3 bg-slate-100 rounded-lg text-[10px] text-slate-600 border border-slate-200 leading-relaxed">
-                <strong>Aclaración Institucional:</strong> Este informe constituye un instrumento de apoyo a la gestión interna. Sus resultados reflejan las respuestas autodeclaradas por el municipio y no constituyen certificación de cumplimiento legal ni sustituyen la revisión jurídica especializada.
-              </div>
-            </div>
-
-            {/* Executive Summary */}
-            <div className="mb-8">
-              <h3 className="text-sm font-bold text-slate-950 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">
-                1. Resumen Ejecutivo y Nivel de Madurez Institucional
-              </h3>
-              <div className="grid grid-cols-3 gap-4 mb-4 text-center">
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <div className="text-2xl font-bold text-blue-800">{assessmentReport.immScore}%</div>
-                  <div className="text-[10px] font-bold text-slate-500 uppercase">Índice IMM</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <div className="text-2xl font-bold text-slate-800">{assessmentReport.overallMaturityLevel}/4</div>
-                  <div className="text-[10px] font-bold text-slate-500 uppercase">Nivel Madurez</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <div className="text-2xl font-bold text-red-700">{assessmentReport.criticalGapsCount}</div>
-                  <div className="text-[10px] font-bold text-slate-500 uppercase">Brechas Críticas</div>
-                </div>
-              </div>
-              <p className="text-xs text-slate-700 leading-relaxed">
-                {assessmentReport.overallMaturityDescription}
-              </p>
-            </div>
-
-            {/* 7 Dimensions Breakdown */}
-            <div className="mb-8">
-              <h3 className="text-sm font-bold text-slate-950 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">
-                2. Preparación por Dimensión Normativa (7 Ejes)
-              </h3>
-              <table className="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-300 font-bold text-slate-700">
-                    <th className="py-2">Dimensión</th>
-                    <th className="py-2 text-center">Nivel</th>
-                    <th className="py-2 text-center">% Preparación</th>
-                    <th className="py-2 text-center">Evidencia</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {assessmentReport.dimensionResults.map((dim) => (
-                    <tr key={dim.dimensionId}>
-                      <td className="py-2 font-medium text-slate-900">{dim.title}</td>
-                      <td className="py-2 text-center">{dim.maturityLabel}</td>
-                      <td className="py-2 text-center font-bold">{dim.percentage}%</td>
-                      <td className="py-2 text-center">{dim.evidenceCoveragePercent}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Top Immediate Actions */}
-            <div className="mb-8">
-              <h3 className="text-sm font-bold text-slate-950 uppercase tracking-wider mb-3 border-b border-slate-200 pb-1">
-                3. Hoja de Ruta: Acciones Inmediatas Prioritarias
-              </h3>
-              <div className="space-y-2">
-                {assessmentReport.roadmap.slice(0, 5).map((act, i) => (
-                  <div key={i} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
-                    <div className="font-bold text-slate-900">{act.questionCode}: {act.accionPropuesta}</div>
-                    <div className="text-[11px] text-slate-600 mt-0.5">
-                      Responsable sugerido: <strong>{act.responsableSugerido}</strong> • Evidencia esperada: {act.evidenciaEsperada}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Legal Framework Citations for Council */}
-            <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-700 space-y-1.5">
-              <div className="font-bold text-slate-900 uppercase tracking-wide text-xs mb-1">
-                4. Marco Normativo y Fundamentación Jurídica Municipal:
-              </div>
-              <div>• <strong>Ley N° 18.695 (Orgánica Constitucional de Municipalidades):</strong> Habilitación legal para el cumplimiento de funciones privativas y compartidas (arts. 3, 4 y 5).</div>
-              <div>• <strong>Ley N° 21.719 (Protección de Datos Personales):</strong> Régimen de responsabilidad administrativa y deber de seguridad del jefe de servicio (Título IV).</div>
-              <div>• <strong>Ley N° 19.886 y DS 662/2025:</strong> Exigencia de cláusulas de encargado (DPA) en compras públicas y contratos de servicios informáticos en la nube.</div>
-              <div>• <strong>Ley N° 20.584 y Ley N° 20.379:</strong> Deber de reserva estricta en fichas clínicas de Salud (APS) y datos de vulnerabilidad social (RSH).</div>
-            </div>
-
-            {/* Official Signatures Block (Visible in Print & Screen) */}
-            <div className="pt-6 border-t-2 border-slate-900 mt-10 print-signatures">
-              <div className="text-center">
-                <div className="h-14 border-b border-slate-400 mx-4 mb-2"></div>
-                <div className="text-[11px] font-bold text-slate-900">Responsable / DPO Designado</div>
-                <div className="text-[9px] text-slate-500">Gobernanza de Privacidad</div>
-              </div>
-              <div className="text-center">
-                <div className="h-14 border-b border-slate-400 mx-4 mb-2"></div>
-                <div className="text-[11px] font-bold text-slate-900">Dirección de Asesoría Jurídica</div>
-                <div className="text-[9px] text-slate-500">Visación Legal Municipal</div>
-              </div>
-              <div className="text-center">
-                <div className="h-14 border-b border-slate-400 mx-4 mb-2"></div>
-                <div className="text-[11px] font-bold text-slate-900">Administración Municipal / Alcaldía</div>
-                <div className="text-[9px] text-slate-500">Aprobación Superior</div>
-              </div>
-            </div>
-
-            {/* Action Buttons: Print PDF + Download TDR + Request Support */}
-            <div className="pt-8 border-t border-slate-200 no-print flex flex-wrap items-center justify-between gap-3 mt-8">
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="px-6 py-3 bg-[#0A2540] hover:bg-blue-600 text-white font-bold rounded-xl shadow-xs cursor-pointer text-xs flex items-center gap-2 transition"
-                >
-                  <span>🖨️ Imprimir Informe para el Concejo (PDF)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDownloadTDR}
-                  className="px-5 py-3 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl border border-slate-300 shadow-xs cursor-pointer text-xs flex items-center gap-2 transition"
-                >
-                  <span>📄 Descargar TDR para Mercado Público (.md)</span>
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsContactModalOpen(true)}
-                className="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-xs cursor-pointer text-xs flex items-center gap-2 transition"
-              >
-                <span>Solicitar Acompañamiento InnCivica Lab →</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Contact & Context Modals */}
       <ContactModal
         isOpen={isContactModalOpen}
         onClose={() => setIsContactModalOpen(false)}
-        defaultMunicipality={profile.municipalityName}
-        defaultRole={profile.respondentRole}
-      />
-      <ContextModal
-        initialProfile={profile}
-        isOpen={isContextModalOpen}
-        onSave={handleSaveProfile}
-        onClose={() => setIsContextModalOpen(false)}
+        defaultMunicipality={municipio}
+        defaultRole={cargo}
       />
     </div>
   );
