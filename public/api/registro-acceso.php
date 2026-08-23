@@ -2,7 +2,6 @@
 // HARDENED REGISTRO ACCESO API (OWASP & LEY 21.719 COMPLIANT)
 header("Content-Type: application/json; charset=UTF-8");
 
-// 1. Validar Origen Seguro (CORS Restrictivo)
 $allowed_origins = [
     "https://protegedatoslocal.inncivica.cloud",
     "https://inncivica.cloud",
@@ -30,10 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// 2. Rate Limiting por IP (Máximo 10 peticiones por minuto)
+// Rate Limiting por IP (Máximo 10 peticiones por minuto)
 $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-$ip_hash = md5($ip);
-$rate_file = sys_get_temp_dir() . "/pdl_rate_" . $ip_hash . ".tmp";
+$rate_file = sys_get_temp_dir() . "/pdl_rate_" . md5($ip) . ".tmp";
 $current_time = time();
 
 if (file_exists($rate_file)) {
@@ -53,7 +51,7 @@ if (file_exists($rate_file)) {
     @file_put_contents($rate_file, json_encode(["time" => $current_time, "count" => 1]));
 }
 
-// 3. Sanitización y Validación Estricta
+// Sanitización y Validación Estricta
 $input = json_decode(file_get_contents("php://input"), true);
 if (!$input || empty($input['email']) || empty($input['municipio']) || empty($input['nombre'])) {
     http_response_code(400);
@@ -75,8 +73,16 @@ $cargo = htmlspecialchars(strip_tags($input['cargo'] ?? 'Direccion Municipal'), 
 $departamento = htmlspecialchars(strip_tags($input['departamento'] ?? 'General'), ENT_QUOTES, 'UTF-8');
 $fecha = date("d-m-Y H:i:s");
 
-// 4. Almacenamiento Seguro (Archivo PHP con proteccion de ejecucion directa)
-$log_file = __DIR__ . "/traza_segura.php";
+// ALMACENAMIENTO SEGURO FUERA DE PUBLIC_HTML
+// Intenta guardar en directorio privado ~/pdl_secure_data/ o sys_get_temp_dir
+$home_dir = getenv("HOME") ?: sys_get_temp_dir();
+$secure_dir = $home_dir . "/pdl_secure_data";
+if (!is_dir($secure_dir)) {
+    @mkdir($secure_dir, 0700, true);
+}
+
+$log_file = is_dir($secure_dir) ? ($secure_dir . "/traza_accesos.log") : (sys_get_temp_dir() . "/pdl_traza_accesos.log");
+
 $entry = [
     "fecha" => $fecha,
     "municipio" => $municipio,
@@ -87,16 +93,9 @@ $entry = [
     "hash_ip" => substr(md5($ip . 'SECRET_SALT_2026'), 0, 10)
 ];
 
-// Guardar como PHP que muere si se visita directamente por URL
-$line = json_encode($entry, JSON_UNESCAPED_UNICODE) . PHP_EOL;
-if (!file_exists($log_file)) {
-    $header = "<?php http_response_code(403); exit('Acceso denegado'); ?>" . PHP_EOL;
-    @file_put_contents($log_file, $header . $line, FILE_APPEND | LOCK_EX);
-} else {
-    @file_put_contents($log_file, $line, FILE_APPEND | LOCK_EX);
-}
+@file_put_contents($log_file, json_encode($entry, JSON_UNESCAPED_UNICODE) . PHP_EOL, FILE_APPEND | LOCK_EX);
 
-// 5. Notificación por Correo Seguro (Prevenir Header Injection)
+// Notificación por Correo Seguro (Prevenir Header Injection)
 $to = "evegat@uchile.cl, evega.ap@gmail.com";
 $subject = "=?UTF-8?B?" . base64_encode("[ProtegeDatosLocal] Nuevo Acceso - " . $municipio) . "?=";
 
@@ -110,7 +109,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-he
 </style>
 </head>
 <body>
-<h2>🏛️ Nuevo Acceso al Diagnóstico Municipal</h2>
+<h2>🏛️ Nuevo Acceso Registrado al Diagnóstico</h2>
 <div class='card'>
   <p><strong>Municipalidad:</strong> {$municipio}</p>
   <p><strong>Funcionario(a):</strong> {$nombre}</p>

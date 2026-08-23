@@ -341,6 +341,20 @@ VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA VIGENTE:
               </select>
             </div>
 
+            <div className="pt-2">
+              <label className="flex items-start gap-2.5 text-[11px] text-slate-600 dark:text-slate-400 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  defaultChecked={true}
+                  className="mt-0.5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500"
+                />
+                <span>
+                  Autorizo el tratamiento de mis datos de contacto institucional exclusivamente para la emisión del informe y seguimiento técnico, conforme al Art. 13 de la <a href="/privacidad" target="_blank" className="text-blue-600 dark:text-blue-400 underline font-bold">Ley N° 21.719</a>.
+                </span>
+              </label>
+            </div>
+
             <div className="pt-4 text-center">
               <button
                 type="submit"
