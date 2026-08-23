@@ -1,276 +1,169 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { DIMENSIONS } from '../data/questions';
-import { ACTIONABLE_KITS } from '../data/downloadableKits';
 ---
 
 <Layout
-  title="ProtegeDatosLocal — Preparación Municipal para Protección de Datos | InnCivica Lab"
-  description="Evalúe capacidades institucionales, identifique brechas y organice la evidencia necesaria para priorizar un plan de adecuación antes del 1 de diciembre de 2026."
+  title="ProtegeDatosLocal — Privacidad y Ley N° 21.719 para Municipios"
+  description="Diagnostica brechas, genera decretos oficiales y prepara tu municipio antes del 1 de diciembre de 2026 sin fricción."
 >
   <!-- Hero Section -->
-  <section class="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white py-20 px-4 sm:px-6 border-b border-slate-800">
-    <div class="max-w-5xl mx-auto text-center">
-      <!-- Eyebrow -->
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-400/20 mb-6">
-        <span>⚖️</span>
-        Ley N.º 21.719 · Preparación municipal
-      </div>
-
-      <!-- Hero Headline -->
-      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-        ¿Qué tan preparado está su municipio para la <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-sky-200">nueva regulación de protección de datos?</span>
-      </h1>
-
-      <p class="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-        Evalúe capacidades institucionales, identifique brechas y organice la evidencia necesaria para priorizar un plan de adecuación antes del <strong>1 de diciembre de 2026</strong>.
-      </p>
-
-      <!-- CTAs -->
-      <div class="flex flex-wrap justify-center gap-4 mb-8">
-        <a
-          href="/diagnostico"
-          class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-xl shadow-lg transition cursor-pointer"
-        >
-          Iniciar diagnóstico →
-        </a>
-        <a
-          href="#que-evaluamos"
-          class="px-6 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl border border-slate-700 transition"
-        >
-          Ver qué evaluamos ↓
-        </a>
-      </div>
-
-      <!-- Institutional Clarification -->
-      <p class="text-xs text-slate-400 max-w-xl mx-auto mb-12 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-        Autodiagnóstico de preparación institucional · No constituye certificación de cumplimiento ni asesoría jurídica.
-      </p>
-
-      <!-- 4 Audited Metric Cards (No alarmism, 100% verified) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto text-left">
-        <div class="p-5 bg-slate-900/90 rounded-2xl border border-slate-800 shadow-sm">
-          <div class="text-xl sm:text-2xl font-black text-blue-400 mb-1">1 diciembre 2026</div>
-          <div class="text-xs font-bold text-white uppercase tracking-wider">Entrada en Vigencia</div>
-          <p class="text-xs text-slate-400 mt-1 leading-relaxed">Entrada en vigencia de la nueva regulación. Fecha normativa verificada: agosto de 2026.</p>
-        </div>
-
-        <div class="p-5 bg-slate-900/90 rounded-2xl border border-slate-800 shadow-sm">
-          <div class="text-xl sm:text-2xl font-black text-amber-400 mb-1">30 días corridos</div>
-          <div class="text-xs font-bold text-white uppercase tracking-wider">Plazo General de Derechos</div>
-          <p class="text-xs text-slate-400 mt-1 leading-relaxed">Plazo general para pronunciarse sobre solicitudes de derechos, sujeto a la prórroga legal aplicable.</p>
-        </div>
-
-        <div class="p-5 bg-slate-900/90 rounded-2xl border border-slate-800 shadow-sm">
-          <div class="text-xl sm:text-2xl font-black text-emerald-400 mb-1">Gestión transversal</div>
-          <div class="text-xs font-bold text-white uppercase tracking-wider">Coordinación Institucional</div>
-          <p class="text-xs text-slate-400 mt-1 leading-relaxed">La protección de datos involucra áreas jurídicas, tecnológicas, directivas y operativas.</p>
-        </div>
-
-        <div class="p-5 bg-slate-900/90 rounded-2xl border border-slate-800 shadow-sm">
-          <div class="text-xl sm:text-2xl font-black text-cyan-400 mb-1">Evidencia</div>
-          <div class="text-xs font-bold text-white uppercase tracking-wider">Responsabilidad Proactiva</div>
-          <p class="text-xs text-slate-400 mt-1 leading-relaxed">Documente medidas, decisiones, responsables y controles para gestionar su preparación.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- User Journeys Section -->
-  <section class="py-16 px-4 sm:px-6 max-w-6xl mx-auto border-b border-slate-200">
-    <div class="text-center max-w-3xl mx-auto mb-12">
-      <span class="text-xs font-bold uppercase tracking-widest text-blue-800 block mb-2">
-        Flujos de Preparación por Función Municipal
-      </span>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-950 mb-3">
-        ¿Cuál es su rol en el Municipio?
-      </h2>
-      <p class="text-slate-600 text-xs sm:text-sm">
-        Herramientas y orientaciones adaptadas según las responsabilidades de cada jefatura.
-      </p>
+  <section class="pt-16 pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900 mb-6">
+      <span class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span>
+      Ley N° 21.719 · Vigencia 1 de Diciembre de 2026
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Decisor */}
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-        <div>
-          <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-900 font-bold flex items-center justify-center text-lg mb-4">
-            🏛️
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-800 block mb-1">Rol Directivo</span>
-          <h3 class="text-base font-bold text-slate-950 mb-2">Alcaldía / Administrador Municipal</h3>
-          <p class="text-xs text-slate-600 leading-relaxed mb-4">
-            Conozca el nivel de preparación institucional de las dependencias municipales, defina responsabilidades y obtenga un informe ejecutivo para el equipo directivo o Concejo.
-          </p>
-          <ul class="text-xs text-slate-600 space-y-1.5 mb-6">
-            <li class="flex items-center gap-1.5">✓ <strong>Instrumento:</strong> Modelo de decreto de formalización de roles.</li>
-            <li class="flex items-center gap-1.5">✓ <strong>Reporte:</strong> Informe ejecutivo de brechas y priorización.</li>
-          </ul>
-        </div>
-        <a
-          href="/diagnostico"
-          class="w-full py-2.5 bg-slate-900 hover:bg-blue-800 text-white font-bold text-xs rounded-xl text-center shadow-xs transition"
-        >
-          Iniciar Diagnóstico Directivo →
-        </a>
-      </div>
+    <!-- Main Title -->
+    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 dark:text-white tracking-tight leading-tight mb-5">
+      Protección de datos para tu Municipio, <span class="text-blue-600 dark:text-blue-400">sin fricción.</span>
+    </h1>
 
-      {/* Operativo */}
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-        <div>
-          <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 font-bold flex items-center justify-center text-lg mb-4">
-            💻
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-800 block mb-1">Rol Técnico / Operativo</span>
-          <h3 class="text-base font-bold text-slate-950 mb-2">Dirección Jurídica / Informática (TI)</h3>
-          <p class="text-xs text-slate-600 leading-relaxed mb-4">
-            Mapee el inventario de tratamientos, establezca cláusulas para proveedores que traten datos por cuenta del municipio y formalice protocolos de incidentes.
-          </p>
-          <ul class="text-xs text-slate-600 space-y-1.5 mb-6">
-            <li class="flex items-center gap-1.5">✓ <strong>Instrumento:</strong> Matriz de inventario (formato RAT) + Cláusulas proveedor.</li>
-            <li class="flex items-center gap-1.5">✓ <strong>Protocolo:</strong> Esquema de gestión y reporte de incidentes.</li>
-          </ul>
-        </div>
-        <a
-          href="/kits"
-          class="w-full py-2.5 bg-blue-800 hover:bg-blue-700 text-white font-bold text-xs rounded-xl text-center shadow-xs transition"
-        >
-          Ver Kits y Plantillas de Apoyo →
-        </a>
-      </div>
+    <!-- Short Crisp Subtitle -->
+    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
+      Evalúa brechas institucionales, genera decretos tipo y aplica el filtro de privacidad en tus trámites comunales en minutos.
+    </p>
 
-      {/* Social y Salud */}
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-        <div>
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 font-bold flex items-center justify-center text-lg mb-4">
-            🏥
-          </div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block mb-1">Rol Sectorial Crítico</span>
-          <h3 class="text-base font-bold text-slate-950 mb-2">DIDECO / Salud Comunal (DISAM)</h3>
-          <p class="text-xs text-slate-600 leading-relaxed mb-4">
-            Evalúe controles de confidencialidad en el Registro Social de Hogares (RSH), resguardo de Fichas Clínicas en CESFAM y directrices de protección de niñez.
-          </p>
-          <ul class="text-xs text-slate-600 space-y-1.5 mb-6">
-            <li class="flex items-center gap-1.5">✓ <strong>Instrumento:</strong> Pauta de resguardo y deber de secreto RSH.</li>
-            <li class="flex items-center gap-1.5">✓ <strong>Control:</strong> Verificación de perfiles de acceso clínico.</li>
-          </ul>
-        </div>
-        <a
-          href="/diagnostico"
-          class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl text-center shadow-xs transition"
-        >
-          Evaluar Módulo Salud & Social →
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: What We Evaluate (The 7 Audited Dimensions) -->
-  <section id="que-evaluamos" class="py-16 px-4 sm:px-6 max-w-6xl mx-auto">
-    <div class="text-center max-w-3xl mx-auto mb-12">
-      <span class="text-xs font-bold uppercase tracking-widest text-blue-800 block mb-2">
-        Marco de Evaluación Municipal
-      </span>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-950 mb-3">
-        Las 7 Dimensiones de Preparación Institucional
-      </h2>
-      <p class="text-slate-600 text-xs sm:text-sm">
-        Un marco estructurado diseñado para las direcciones y responsabilidades del ámbito municipal chileno.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {DIMENSIONS.map((dim) => (
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs hover:border-slate-400 transition">
-          <div class="flex items-center justify-between mb-3">
-            <span class="px-2.5 py-1 bg-slate-100 text-slate-800 text-xs font-bold rounded-md">
-              {dim.code}
-            </span>
-            <span class="text-[11px] font-semibold text-slate-500">
-              Ponderación: {Math.round(dim.weight * 100)}%
-            </span>
-          </div>
-
-          <h3 class="font-bold text-slate-950 mb-2 text-base">
-            {dim.title.split('. ')[1]}
-          </h3>
-
-          <p class="text-xs text-slate-600 leading-relaxed mb-4">
-            {dim.description}
-          </p>
-
-          <div class="pt-3 border-t border-slate-100 flex flex-wrap gap-1">
-            {dim.primaryRoles.map((role) => (
-              <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                {role}
-              </span>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- Section: Marco Normativo e Institucional de Referencia (Without false endorsements) -->
-  <section class="bg-slate-100 py-16 px-4 sm:px-6 border-t border-slate-200">
-    <div class="max-w-5xl mx-auto">
-      <div class="text-center max-w-2xl mx-auto mb-10">
-        <span class="text-xs font-bold uppercase tracking-widest text-blue-800 block mb-1">
-          Trazabilidad Normativa
-        </span>
-        <h2 class="text-2xl sm:text-3xl font-bold text-slate-950 mb-2">
-          Marco Normativo e Institucional de Referencia
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-600">
-          Cada criterio distingue explícitamente entre obligación legal, recomendación técnica y práctica de gestión, con acceso directo a su fuente oficial.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-slate-700">
-        <div class="p-4 bg-white rounded-xl border border-slate-200">
-          <div class="font-bold text-slate-900 mb-1">Ley N.º 21.719 / Ley 19.628</div>
-          <div class="text-[11px] text-slate-500">Protección de Datos Personales · APDP</div>
-        </div>
-        <div class="p-4 bg-white rounded-xl border border-slate-200">
-          <div class="font-bold text-slate-900 mb-1">Ley N.º 21.663 / DS N.º 295</div>
-          <div class="text-[11px] text-slate-500">Marco de Ciberseguridad · ANCI / CSIRT</div>
-        </div>
-        <div class="p-4 bg-white rounded-xl border border-slate-200">
-          <div class="font-bold text-slate-900 mb-1">Ley N.º 18.695 (LOCM)</div>
-          <div class="text-[11px] text-slate-500">Competencias Municipales · CGR</div>
-        </div>
-        <div class="p-4 bg-white rounded-xl border border-slate-200">
-          <div class="font-bold text-slate-900 mb-1">Normativa Sectorial</div>
-          <div class="text-[11px] text-slate-500">Salud (20.584), RSH (DS 160), Compras Públicas</div>
-        </div>
-      </div>
-
-      <div class="text-center mt-8">
-        <a href="/normativa" class="text-xs font-bold text-blue-800 hover:underline">
-          Explorar Base Normativa Oficial y Artículos Específicos →
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Banner -->
-  <section class="py-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
-    <div class="bg-slate-950 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
-      <h3 class="text-2xl sm:text-3xl font-extrabold mb-3">
-        Comience la Evaluación de Preparación en su Municipio
-      </h3>
-      <p class="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto mb-8 leading-relaxed">
-        El autodiagnóstico permite mapear capacidades, identificar brechas críticas y estructurar una hoja de ruta priorizada con trazabilidad documental.
-      </p>
+    <!-- CTAs -->
+    <div class="flex flex-wrap justify-center gap-3 mb-14">
       <a
         href="/diagnostico"
-        class="inline-block px-8 py-4 bg-white text-slate-950 font-bold rounded-xl shadow hover:bg-slate-100 transition text-sm cursor-pointer"
+        class="px-6 py-3.5 bg-slate-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold rounded-xl shadow-xs transition text-xs sm:text-sm"
       >
-        Iniciar Diagnóstico Institucional →
+        Iniciar Diagnóstico Municipal →
       </a>
-      <div class="text-[11px] text-slate-400 mt-4">
-        Acompañamiento técnico disponible mediante los mecanismos de contratación pública que resulten procedentes.
+      <a
+        href="/kits"
+        class="px-5 py-3.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border border-slate-200 dark:border-slate-800 transition text-xs sm:text-sm"
+      >
+        Generador de Decretos
+      </a>
+    </div>
+
+    <!-- 3 Clean Metrics Pills -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-center shadow-xs">
+        <div class="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white mb-0.5">1 Dic 2026</div>
+        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Entrada en Vigencia Plena</div>
       </div>
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-center shadow-xs">
+        <div class="text-xl sm:text-2xl font-extrabold text-blue-600 dark:text-blue-400 mb-0.5">30 Días</div>
+        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Plazo Derechos Ciudadanos</div>
+      </div>
+      <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-center shadow-xs">
+        <div class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mb-0.5">100% Local</div>
+        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Privacidad y Zero-Storage</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Main Action Modules (Big Clean Cards) -->
+  <section class="py-12 px-4 sm:px-6 max-w-5xl mx-auto border-t border-slate-200/80 dark:border-slate-800/80">
+    <div class="text-center mb-10">
+      <span class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-1">
+        Herramientas GovTech
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white">
+        ¿Qué deseas hacer hoy?
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Card 1: Diagnóstico -->
+      <a href="/diagnostico" class="clean-card bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 p-6 rounded-2xl flex flex-col justify-between group cursor-pointer shadow-xs">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center text-xl mb-4 group-hover:scale-105 transition">
+            📊
+          </div>
+          <h3 class="text-base font-bold text-slate-950 dark:text-white mb-1">
+            Autodiagnóstico Municipal (IMM)
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Evalúa tu municipio en 7 dimensiones, obtén tu nivel de madurez e imprime una hoja de ruta para el Concejo.
+          </p>
+        </div>
+        <div class="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
+          <span>Comenzar evaluación</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </div>
+      </a>
+
+      <!-- Card 2: Filtro SaaS -->
+      <a href="/filtro" class="clean-card bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 p-6 rounded-2xl flex flex-col justify-between group cursor-pointer shadow-xs">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center text-xl mb-4 group-hover:scale-105 transition">
+            ⚡
+          </div>
+          <h3 class="text-base font-bold text-slate-950 dark:text-white mb-1">
+            Filtro Preventivo SaaS (EIPD)
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Pasa nuevos trámites, licitaciones o cámaras por el simulador de privacidad antes de ponerlos en marcha.
+          </p>
+        </div>
+        <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+          <span>Evaluar trámite o proyecto</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </div>
+      </a>
+
+      <!-- Card 3: Generador de Decretos -->
+      <a href="/kits" class="clean-card bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 p-6 rounded-2xl flex flex-col justify-between group cursor-pointer shadow-xs">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold flex items-center justify-center text-xl mb-4 group-hover:scale-105 transition">
+            📑
+          </div>
+          <h3 class="text-base font-bold text-slate-950 dark:text-white mb-1">
+            Generador de Decretos y DPAs
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Personaliza decretos de DPO, cláusulas para proveedores en Mercado Público y convenios de confidencialidad RSH.
+          </p>
+        </div>
+        <div class="text-xs font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1">
+          <span>Generar instrumentos</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </div>
+      </a>
+
+      <!-- Card 4: Matriz RAT -->
+      <a href="/rat" class="clean-card bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 p-6 rounded-2xl flex flex-col justify-between group cursor-pointer shadow-xs">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 font-bold flex items-center justify-center text-xl mb-4 group-hover:scale-105 transition">
+            🗂️
+          </div>
+          <h3 class="text-base font-bold text-slate-950 dark:text-white mb-1">
+            Matriz de Tratamientos (RAT)
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Mapea las bases de datos de Salud, Social y Tránsito y descárgalas en Excel (CSV) o JSON estructurado.
+          </p>
+        </div>
+        <div class="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+          <span>Explorar matriz comunal</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Clean Bottom Consultation Callout -->
+  <section class="py-12 px-4 sm:px-6 max-w-4xl mx-auto">
+    <div class="bg-white dark:bg-slate-900/90 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+      <div>
+        <h3 class="text-base font-bold text-slate-950 dark:text-white mb-1">
+          ¿Necesitas apoyo en la implementación municipal?
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
+          Acompañamiento técnico disponible mediante los mecanismos de contratación pública que resulten procedentes.
+        </p>
+      </div>
+      <a
+        href="mailto:evega.ap@gmail.com?subject=Consulta%20ProtegeDatosLocal%20Municipal"
+        class="px-5 py-2.5 bg-slate-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shrink-0"
+      >
+        Contactar a Eduardo Vega Toledo →
+      </a>
     </div>
   </section>
 </Layout>
