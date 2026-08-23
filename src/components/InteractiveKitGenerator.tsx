@@ -11,6 +11,11 @@ interface KitDefinition {
   template: (vars: Record<string, string>) => string;
 }
 
+const cleanMuni = (raw?: string) => {
+  if (!raw) return 'Valparaíso';
+  return raw.replace(/^(I\.\s*Municipalidad\s+de\s+|Ilustre\s+Municipalidad\s+de\s+|Municipalidad\s+de\s+)/i, '').trim() || 'su Comuna';
+};
+
 const KITS_DATABASE: KitDefinition[] = [
   {
     id: 'kit-01',
@@ -26,7 +31,7 @@ VISTOS:
 1. Lo dispuesto en la Constitución Política de la República, en particular en su artículo 19 N° 4, que garantiza a todas las personas la protección de sus datos personales.
 2. Lo establecido en la Ley N° 18.695, Orgánica Constitucional de Municipalidades (DFL N° 1 de 2006).
 3. Las disposiciones de la Ley N° 19.628 y sus modificaciones introducidas por la Ley N° 21.719, que entra en vigencia plena el 1 de diciembre de 2026.
-4. Las facultades inherentes a mi cargo como Alcalde/sa de la Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}.
+4. Las facultades inherentes a mi cargo como Alcalde/sa de la Ilustre Municipalidad de ${cleanMuni(v.municipio)}.
 
 CONSIDERANDO:
 1. Que las Municipalidades se encuentran plenamente sujetas al principio de responsabilidad proactiva y licitud en el tratamiento de datos de vecinos y funcionarios.
@@ -35,7 +40,7 @@ CONSIDERANDO:
 
 DECRETO:
 
-ARTÍCULO PRIMERO: DESÍGNESE a contar de la fecha del presente decreto al/a la funcionario/a ${v.dpoNombre || 'Juan Pérez González'}, RUT ${v.dpoRut || '12.345.678-9'}, de profesión ${v.dpoProfesion || 'Abogado / Administrador Público'}, quien se desempeña en la calidad jurídica de ${v.dpoCalidad || 'Contrata'} en la dirección de ${v.dpoDireccion || 'Dirección Jurídica / Control'}, como Delegado de Protección de Datos (DPO) de la Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}.
+ARTÍCULO PRIMERO: DESÍGNESE a contar de la fecha del presente decreto al/a la funcionario/a ${v.dpoNombre || 'Juan Pérez González'}, RUT ${v.dpoRut || '12.345.678-9'}, de profesión ${v.dpoProfesion || 'Abogado / Administrador Público'}, quien se desempeña en la calidad jurídica de ${v.dpoCalidad || 'Contrata'} en la dirección de ${v.dpoDireccion || 'Dirección Jurídica / Control'}, como Delegado de Protección de Datos (DPO) de la Ilustre Municipalidad de ${cleanMuni(v.municipio)}.
 
 ARTÍCULO SEGUNDO: El Delegado de Protección de Datos municipal ejercerá sus funciones con estricta autonomía técnica y funcional, reportando directamente a la Alcaldía y al Administrador Municipal.
 
@@ -59,7 +64,7 @@ ANÓTESE, COMUNÍQUESE, PUBLÍQUESE EN TRANSPARENCIA ACTIVA Y ARCHÍVESE.
 _________________________________                   _________________________________
 ${v.alcalde || 'Alcalde/sa Titular'}                                 ${v.secretario || 'Secretario/a Municipal'}
 Alcalde/sa                                            Secretario/a Municipal
-Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}               Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}`
+Ilustre Municipalidad de ${cleanMuni(v.municipio)}               Ilustre Municipalidad de ${cleanMuni(v.municipio)}`
   },
   {
     id: 'kit-02',
@@ -70,7 +75,7 @@ Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}               Ilustre M
     legalBasis: 'Art. 25 de la Ley N° 19.628 (reformada por Ley N° 21.719)',
     template: (v) => `ANEXO N° _____: CONVENIO DE ENCARGADO DE TRATAMIENTO DE DATOS PERSONALES (DPA)
 
-En ${v.comuna || 'Santiago'}, a ${v.fecha || '22 de Agosto de 2026'}, entre la ILUSTRE MUNICIPALIDAD DE ${v.municipio || 'Valparaíso'}, RUT ${v.muniRut || '69.010.100-5'}, representada por su Alcalde/sa don/ña ${v.alcalde || 'Alcalde/sa Titular'}, en adelante "el Responsable"; y por la otra parte ${v.proveedor || 'Empresa de Software SpA'}, RUT ${v.provRut || '76.543.210-K'}, representada por don/ña ${v.provRep || 'Representante Legal'}, en adelante "el Encargado"; se acuerda:
+En ${v.comuna || 'Santiago'}, a ${v.fecha || '22 de Agosto de 2026'}, entre la ILUSTRE MUNICIPALIDAD DE ${cleanMuni(v.municipio)}, RUT ${v.muniRut || '69.010.100-5'}, representada por su Alcalde/sa don/ña ${v.alcalde || 'Alcalde/sa Titular'}, en adelante "el Responsable"; y por la otra parte ${v.proveedor || 'Empresa de Software SpA'}, RUT ${v.provRut || '76.543.210-K'}, representada por don/ña ${v.provRep || 'Representante Legal'}, en adelante "el Encargado"; se acuerda:
 
 PRIMERA: Objeto y Ámbito.
 El presente Convenio regula las obligaciones y medidas de seguridad que asume el Encargado respecto de los datos personales tratados con ocasión del contrato "${v.licitacion || 'Servicio de Plataforma y Soporte Tecnológico'}", ID Mercado Público ${v.licitacionId || '2450-12-LR26'}.
@@ -92,7 +97,7 @@ QUINTA: Destino de los Datos al Término del Servicio.
 Al finalizar el contrato, el Encargado deberá devolver íntegramente las bases de datos en formato estructurado estándar (JSON/CSV) y certificar la destrucción irreversible de todas las copias en sus servidores.
 
 _________________________________                   _________________________________
-Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}               ${v.proveedor || 'Empresa de Software SpA'}
+Ilustre Municipalidad de ${cleanMuni(v.municipio)}               ${v.proveedor || 'Empresa de Software SpA'}
 Responsable del Tratamiento                          Encargado del Tratamiento`
   },
   {
@@ -103,12 +108,12 @@ Responsable del Tratamiento                          Encargado del Tratamiento`
     targetRole: 'Dirección de Informática / Seguridad de la Información',
     legalBasis: 'Art. 27 Ley N° 19.628 / Ley N° 21.663 de Ciberseguridad (DS 295)',
     template: (v) => `PROTOCOLO DE REPORTE Y GESTIÓN DE BRECHAS DE SEGURIDAD
-Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}
+Ilustre Municipalidad de ${cleanMuni(v.municipio)}
 
 ESTRUCTURA DE REPORTE TÉCNICO OFICIAL (FORMATO JSON):
 {
   "cabecera_incidente": {
-    "institucion_emisora": "Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}",
+    "institucion_emisora": "Ilustre Municipalidad de ${cleanMuni(v.municipio)}",
     "rut_institucion": "${v.muniRut || '69.010.100-5'}",
     "dpo_responsable": "${v.dpoNombre || 'Juan Pérez González'}",
     "contacto_dpo": "${v.dpoEmail || 'dpo@municipalidad.cl'}",
@@ -143,7 +148,7 @@ ESTRUCTURA DE REPORTE TÉCNICO OFICIAL (FORMATO JSON):
     legalBasis: 'Art. 6 Ley N° 19.949 / DS N° 160 / Art. 58 letra h Ley N° 18.883',
     template: (v) => `COMPROMISO DE CONFIDENCIALIDAD Y DEBER DE SECRETO FUNCIONARIO EN TRATAMIENTO DE DATOS DEL REGISTRO SOCIAL DE HOGARES (RSH)
 
-En ${v.comuna || 'Santiago'}, a ${v.fecha || '22 de Agosto de 2026'}, el/la funcionario/a ${v.operadorNombre || 'María Silva Torres'}, RUT ${v.operadorRut || '15.987.654-3'}, de la Dirección de Desarrollo Comunitario (DIDECO) de la I. Municipalidad de ${v.municipio || 'Valparaíso'}, declara:
+En ${v.comuna || 'Santiago'}, a ${v.fecha || '22 de Agosto de 2026'}, el/la funcionario/a ${v.operadorNombre || 'María Silva Torres'}, RUT ${v.operadorRut || '15.987.654-3'}, de la Dirección de Desarrollo Comunitario (DIDECO) de la I. Municipalidad de ${cleanMuni(v.municipio)}, declara:
 
 PRIMERO: Deber de Secreto Permanente.
 Me comprometo a guardar estricta reserva sobre todos los datos personales y antecedentes socioeconómicos de los habitantes de la comuna a los que acceda con motivo de mis funciones. Este deber prohíbe capturar pantallas, compartir información por mensajería instantánea o facilitar datos a terceros ajenos a la tramitación de beneficios.
@@ -158,7 +163,7 @@ _________________________________
 ${v.operadorNombre || 'María Silva Torres'}
 RUT: ${v.operadorRut || '15.987.654-3'}
 Funcionario/a Operador DIDECO
-I. Municipalidad de ${v.municipio || 'Valparaíso'}`
+I. Municipalidad de ${cleanMuni(v.municipio)}`
   },
   {
     id: 'kit-05',
@@ -168,7 +173,7 @@ I. Municipalidad de ${v.municipio || 'Valparaíso'}`
     targetRole: 'Salud Municipal (DISAM) / Directores CESFAM',
     legalBasis: 'Ley N° 20.584 (Ficha Clínica) / Ley N° 21.719 (Datos de Salud)',
     template: (v) => `PAUTA DE VERIFICACIÓN Y AUDITORÍA DE DATOS DE SALUD (CESFAM / CECOSF)
-Ilustre Municipalidad de ${v.municipio || 'Valparaíso'} — Dirección de Salud Municipal
+Ilustre Municipalidad de ${cleanMuni(v.municipio)} — Dirección de Salud Municipal
 
 DIMENSIÓN 1: RESERVA Y ACCESO A LA FICHA CLÍNICA (Ley N° 20.584)
 [ ] 1.1 ¿El sistema HIS restringe el acceso al expediente clínico únicamente al personal con rol asistencial directo?
@@ -195,7 +200,7 @@ Evaluador/a Responsable: _________________________________`
     legalBasis: 'Ley N° 19.886 / Directivas ChileCompra / Ley N° 21.719',
     template: (v) => `TÉRMINOS DE REFERENCIA (TDR) TIPO
 SERVICIO DE ASESORÍA Y PUESTA AL DÍA ACELERADA LEY N° 21.719
-Ilustre Municipalidad de ${v.municipio || 'Valparaíso'}
+Ilustre Municipalidad de ${cleanMuni(v.municipio)}
 
 1. OBJETIVO DEL REQUERIMIENTO:
 Contratar un servicio profesional especializado para ejecutar el diagnóstico institucional, levantamiento de la matriz de tratamientos (RAT), redacción de decretos de gobernanza, cláusulas para proveedores (DPA) y capacitación a funcionarios antes de la entrada en vigencia del 1 de diciembre de 2026.
