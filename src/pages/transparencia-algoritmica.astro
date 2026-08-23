@@ -1,0 +1,178 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Transparencia Algorítmica y Explicabilidad | ProtegeDatosLocal"
+  description="Ficha pública de transparencia algorítmica, fórmulas matemáticas y modelos deterministas de ProtegeDatosLocal conforme a la Res. Exenta N° 372 del CPLT y Art. 8° bis de la Ley N° 21.719."
+>
+  <section class="max-w-5xl mx-auto py-12 px-4 sm:px-6">
+    <!-- Header -->
+    <div class="border-b border-slate-200 pb-6 mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200 mb-3">
+        🔍 Estándar de Transparencia Activa y Explicabilidad
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-950">
+        Declaración de Transparencia Algorítmica
+      </h1>
+      <p class="text-sm text-slate-600 mt-2 max-w-3xl leading-relaxed">
+        En cumplimiento de la <strong>Resolución Exenta N° 372 (2024) del Consejo para la Transparencia</strong>, el <strong>Oficio Circular N° 711 del MinCiencia</strong> y el <strong>Artículo 8° bis de la Ley N° 21.719</strong>, ponemos a disposición pública la lógica de procesamiento, fórmulas matemáticas y reglas de decisión de los algoritmos utilizados en ProtegeDatosLocal.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2 text-xs">
+        <span class="bg-emerald-50 text-emerald-900 border border-emerald-200 px-3 py-1 rounded-lg font-bold">
+          ✓ Algoritmos 100% Deterministas (Caja Blanca)
+        </span>
+        <span class="bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1 rounded-lg font-medium">
+          🔒 Sin Perfilamiento Opaco ni IA de Caja Negra
+        </span>
+        <span class="bg-blue-50 text-blue-900 border border-blue-200 px-3 py-1 rounded-lg font-medium">
+          👤 Intervención y Control Humano Total
+        </span>
+      </div>
+    </div>
+
+    <!-- 1. Algoritmo IMM -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs mb-8">
+      <div class="flex items-center justify-between mb-3">
+        <span class="px-2.5 py-0.5 bg-blue-100 text-blue-900 text-xs font-bold rounded-md">
+          ALGORITMO 01
+        </span>
+        <span class="text-xs text-slate-500 font-medium">Módulo: /diagnostico</span>
+      </div>
+      <h2 class="text-xl font-bold text-slate-950 mb-2">
+        1. Algoritmo de Cálculo del Índice MuniTech de Preparación (IMM)
+      </h2>
+      <p class="text-xs text-slate-600 leading-relaxed mb-4">
+        <strong>Objetivo:</strong> Computar de manera cuantitativa el nivel de madurez institucional de la municipalidad frente a las 7 dimensiones de la Ley N° 21.719, ponderando según el peso relativo de cada eje.
+      </p>
+
+      <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs mb-4 leading-relaxed">
+        <div class="text-blue-400 font-bold mb-1">// Expresión Matemática:</div>
+        IMM = Round( Sum( Puntaje_Dimension_i * Peso_i ) / Sum( Pesos_Aplicables ) )
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-900 block mb-2">Variables de Entrada (Puntuación por Criterio):</span>
+          <ul class="space-y-1.5 text-slate-700">
+            <li>• <strong>Sí (Implementado):</strong> +3.0 puntos</li>
+            <li>• <strong>Parcialmente (En Desarrollo):</strong> +1.5 puntos</li>
+            <li>• <strong>No (No Implementado):</strong> 0.0 puntos (genera brecha)</li>
+            <li>• <strong>No Sabemos:</strong> 0.0 puntos (genera brecha de conocimiento)</li>
+            <li>• <strong>No Aplica:</strong> Se excluye del divisor</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-900 block mb-2">Ponderación de los 7 Ejes Normativos:</span>
+          <ul class="space-y-1 text-slate-700 text-[11px]">
+            <li>1. Gobernanza & Roles (15%)</li>
+            <li>2. Inventario & Trazabilidad RAT (15%)</li>
+            <li>3. Derechos de los Titulares ARSOPB (15%)</li>
+            <li>4. Seguridad & Gestión de Incidentes (15%)</li>
+            <li>5. Datos Sensibles: Salud y RSH (15%)</li>
+            <li>6. Proveedores & Contratos DPA (10%)</li>
+            <li>7. Alto Riesgo & Evaluaciones EIPD (15%)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3.5 bg-blue-50 rounded-xl border border-blue-200 text-xs text-blue-950">
+        <strong>Umbrales de Clasificación de Madurez:</strong>
+        <span class="font-semibold"> 0–14% Nivel 0 (No Identificado)</span> •
+        <span class="font-semibold"> 15–39% Nivel 1 (Inicial)</span> •
+        <span class="font-semibold"> 40–64% Nivel 2 (En Desarrollo)</span> •
+        <span class="font-semibold"> 65–84% Nivel 3 (Implementado)</span> •
+        <span class="font-semibold"> 85–100% Nivel 4 (Gestionado)</span>.
+      </div>
+    </div>
+
+    <!-- 2. Algoritmo Hoja de Ruta -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs mb-8">
+      <div class="flex items-center justify-between mb-3">
+        <span class="px-2.5 py-0.5 bg-amber-100 text-amber-900 text-xs font-bold rounded-md">
+          ALGORITMO 02
+        </span>
+        <span class="text-xs text-slate-500 font-medium">Módulo: /diagnostico (Hoja de Ruta)</span>
+      </div>
+      <h2 class="text-xl font-bold text-slate-950 mb-2">
+        2. Algoritmo de Priorización y Secuenciamiento de Acciones
+      </h2>
+      <p class="text-xs text-slate-600 leading-relaxed mb-4">
+        <strong>Objetivo:</strong> Asignar una prioridad temporal determinista a cada hallazgo para que el equipo municipal no se abrume y priorice riesgos críticos y brechas de conocimiento primero.
+      </p>
+
+      <div class="space-y-2 text-xs">
+        <div class="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2">
+          <span class="font-bold text-red-900 shrink-0">Fase 1 (Prioridad Inmediata):</span>
+          <span class="text-red-850">Se activa si el criterio tiene <code>Criticidad = 'CRITICA'</code> o la respuesta fue <code>'NO_SABEMOS'</code> (resuelve la ceguera institucional primero).</span>
+        </div>
+        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2">
+          <span class="font-bold text-amber-900 shrink-0">Fase 2 (Próximos 90 Días):</span>
+          <span class="text-amber-850">Se activa si el criterio tiene <code>Criticidad = 'ALTA'</code> y la respuesta fue <code>'NO'</code> o <code>'PARCIAL'</code> (capacidades estructurales).</span>
+        </div>
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2">
+          <span class="font-bold text-blue-900 shrink-0">Fase 3 (Antes de Vigencia):</span>
+          <span class="text-blue-850">Criterios de criticidad Media o Baja que requieren consolidación formal antes del 1 de diciembre de 2026.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Algoritmo Filtro Preventivo SaaS -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs mb-8">
+      <div class="flex items-center justify-between mb-3">
+        <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-900 text-xs font-bold rounded-md">
+          ALGORITMO 03
+        </span>
+        <span class="text-xs text-slate-500 font-medium">Módulo: /filtro (Privacy by Design)</span>
+      </div>
+      <h2 class="text-xl font-bold text-slate-950 mb-2">
+        3. Algoritmo de Evaluación de Impacto en Privacidad (EIPD / Riesgo)
+      </h2>
+      <p class="text-xs text-slate-600 leading-relaxed mb-4">
+        <strong>Objetivo:</strong> Analizar las características de un nuevo proyecto, software, licitación o programa social para determinar si requiere obligatoriamente una Evaluación de Impacto (EIPD) conforme al Art. 26 de la Ley 21.719.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs mb-4">
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-900 block mb-1">Ponderador de Sensibilidad:</span>
+          <div class="text-slate-600 text-[11px]">
+            • Datos Comunes: 10 pts<br />
+            • Datos Salud/RSH: +30 pts<br />
+            • Datos Biométricos/IA: +35 pts<br />
+            • Datos de Niñez: +25 pts
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-900 block mb-1">Ponderador de Escala:</span>
+          <div class="text-slate-600 text-[11px]">
+            • Menos de 1.000 personas: 5 pts<br />
+            • 1.000 a 10.000 personas: 15 pts<br />
+            • Toda la comuna (>10k): 25 pts
+          </div>
+        </div>
+
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <span class="font-bold text-slate-900 block mb-1">Disparador Automático EIPD:</span>
+          <div class="text-red-700 font-semibold text-[11px]">
+            Monitoreo sistemático de espacios públicos (CCTV/LPR) o decisiones automatizadas activan EIPD obligatoria independientemente del score.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compromiso Ético -->
+    <div class="bg-slate-950 text-white rounded-3xl p-8 text-xs leading-relaxed">
+      <h3 class="text-base font-bold text-white mb-2">
+        Compromiso Institucional de Explicabilidad y No Discriminación
+      </h3>
+      <p class="text-slate-300 mb-3">
+        Todos los cálculos se ejecutan en el navegador web del usuario (lado del cliente). No existe ningún componente de aprendizaje automático opaco que altere las ponderaciones o tome decisiones sin intervención humana directa.
+      </p>
+      <div class="text-slate-400">
+        Responsable Técnico: <strong>Eduardo Vega Toledo</strong> · Consultor en Gestión Pública y Protección de Datos.
+      </div>
+    </div>
+  </section>
+</Layout>
