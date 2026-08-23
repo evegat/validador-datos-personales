@@ -1,8 +1,23 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+// HARDENED REGISTRO ACCESO API (OWASP & LEY 21.719 COMPLIANT)
+header("Content-Type: application/json; charset=UTF-8");
+
+// 1. Validar Origen Seguro (CORS Restrictivo)
+$allowed_origins = [
+    "https://protegedatoslocal.inncivica.cloud",
+    "https://inncivica.cloud",
+    "http://localhost:4321",
+    "http://localhost:3000"
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins, true)) {
+    header("Access-Control-Allow-Origin: " . $origin);
+} else {
+    header("Access-Control-Allow-Origin: https://protegedatoslocal.inncivica.cloud");
+}
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json; charset=UTF-8");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -11,50 +26,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(["status" => "error", "message" => "Método no permitido"]);
+    echo json_encode(["status" => "error", "message" => "Metodo no permitido"]);
     exit;
 }
 
-$input = json_decode(file_get_contents("php://input"), true);
-
-if (!$input || empty($input['email']) || empty($input['municipio'])) {
-    http_response_code(400);
-    echo json_encode(["status" => "error", "message" => "Datos incompletos"]);
-    exit;
-}
-
-$email = filter_var($input['email'], FILTER_SANITIZE_EMAIL);
-$municipio = htmlspecialchars($input['municipio'] ?? 'Municipalidad');
-$nombre = htmlspecialchars($input['nombre'] ?? 'Funcionario');
-$cargo = htmlspecialchars($input['cargo'] ?? 'Dirección Municipal');
-$departamento = htmlspecialchars($input['departamento'] ?? 'General');
-$fecha = date("d-m-Y H:i:s");
+// 2. Rate Limiting por IP (Máximo 10 peticiones por minuto)
 $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+$ip_hash = md5($ip);
+$rate_file = sys_get_temp_dir() . "/pdl_rate_" . $ip_hash . ".tmp";
+$current_time = time();
 
-// 1. Guardar registro en archivo JSON local de traza
-$log_file = __DIR__ . "/traza_accesos.json";
-$registros = [];
-if (file_exists($log_file)) {
-    $contenido = file_get_contents($log_file);
-    $registros = json_decode($contenido, true) ?: [];
+if (file_exists($rate_file)) {
+    $rate_data = json_decode(file_get_contents($rate_file), true);
+    if ($rate_data && ($current_time - $rate_data['time']) < 60) {
+        if ($rate_data['count'] >= 10) {
+            http_response_code(429);
+            echo json_encode(["status" => "error", "message" => "Limite de solicitudes excedido. Intente en un minuto."]);
+            exit;
+        }
+        $rate_data['count']++;
+        @file_put_contents($rate_file, json_encode($rate_data));
+    } else {
+        @file_put_contents($rate_file, json_encode(["time" => $current_time, "count" => 1]));
+    }
+} else {
+    @file_put_contents($rate_file, json_encode(["time" => $current_time, "count" => 1]));
 }
 
-$nuevo_registro = [
+// 3. Sanitización y Validación Estricta
+$input = json_decode(file_get_contents("php://input"), true);
+if (!$input || empty($input['email']) || empty($input['municipio']) || empty($input['nombre'])) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "message" => "Campos obligatorios incompletos"]);
+    exit;
+}
+
+$email_raw = str_replace(["\r", "\n"], '', trim($input['email']));
+if (!filter_var($email_raw, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "message" => "Formato de correo electronico invalido"]);
+    exit;
+}
+
+$email = htmlspecialchars($email_raw, ENT_QUOTES, 'UTF-8');
+$municipio = htmlspecialchars(strip_tags($input['municipio'] ?? 'Municipalidad'), ENT_QUOTES, 'UTF-8');
+$nombre = htmlspecialchars(strip_tags($input['nombre'] ?? 'Funcionario'), ENT_QUOTES, 'UTF-8');
+$cargo = htmlspecialchars(strip_tags($input['cargo'] ?? 'Direccion Municipal'), ENT_QUOTES, 'UTF-8');
+$departamento = htmlspecialchars(strip_tags($input['departamento'] ?? 'General'), ENT_QUOTES, 'UTF-8');
+$fecha = date("d-m-Y H:i:s");
+
+// 4. Almacenamiento Seguro (Archivo PHP con proteccion de ejecucion directa)
+$log_file = __DIR__ . "/traza_segura.php";
+$entry = [
     "fecha" => $fecha,
     "municipio" => $municipio,
     "nombre" => $nombre,
     "cargo" => $cargo,
     "departamento" => $departamento,
     "email" => $email,
-    "ip_anonimizada" => substr(md5($ip), 0, 8)
+    "hash_ip" => substr(md5($ip . 'SECRET_SALT_2026'), 0, 10)
 ];
 
-$registros[] = $nuevo_registro;
-@file_put_contents($log_file, json_encode($registros, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+// Guardar como PHP que muere si se visita directamente por URL
+$line = json_encode($entry, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+if (!file_exists($log_file)) {
+    $header = "<?php http_response_code(403); exit('Acceso denegado'); ?>" . PHP_EOL;
+    @file_put_contents($log_file, $header . $line, FILE_APPEND | LOCK_EX);
+} else {
+    @file_put_contents($log_file, $line, FILE_APPEND | LOCK_EX);
+}
 
-// 2. Notificación inmediata a los correos del consultor
+// 5. Notificación por Correo Seguro (Prevenir Header Injection)
 $to = "evegat@uchile.cl, evega.ap@gmail.com";
-$subject = "[ProtegeDatosLocal] Nuevo Acceso Iniciado - " . $municipio;
+$subject = "=?UTF-8?B?" . base64_encode("[ProtegeDatosLocal] Nuevo Acceso - " . $municipio) . "?=";
 
 $message = "
 <html>
@@ -66,8 +110,7 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-he
 </style>
 </head>
 <body>
-<h2>🏛️ Nuevo Funcionario Iniciando Diagnóstico</h2>
-<p>Un directivo o funcionario municipal ha ingresado sus antecedentes para iniciar la evaluación.</p>
+<h2>🏛️ Nuevo Acceso al Diagnóstico Municipal</h2>
 <div class='card'>
   <p><strong>Municipalidad:</strong> {$municipio}</p>
   <p><strong>Funcionario(a):</strong> {$nombre}</p>
@@ -76,17 +119,20 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-he
   <p><strong>Correo Institucional:</strong> <a href='mailto:{$email}'>{$email}</a></p>
   <p><strong>Fecha y Hora:</strong> {$fecha}</p>
 </div>
-<p><em>Traza registrada en el portal ProtegeDatosLocal (InnCivica Lab).</em></p>
+<p><em>ProtegeDatosLocal · InnCivica Lab</em></p>
 </body>
 </html>
 ";
 
-$headers  = "MIME-Version: 1.0\r\n";
-$headers .= "Content-type: text/html; charset=UTF-8\r\n";
-$headers .= "From: ProtegeDatosLocal <no-reply@inncivica.cloud>\r\n";
-$headers .= "Reply-To: " . $email . "\r\n";
+$headers = [
+    "MIME-Version: 1.0",
+    "Content-type: text/html; charset=UTF-8",
+    "From: ProtegeDatosLocal <no-reply@inncivica.cloud>",
+    "Reply-To: " . $email,
+    "X-Mailer: PDL-Security/2.0"
+];
 
-@mail($to, $subject, $message, $headers);
+@mail($to, $subject, $message, implode("\r\n", $headers));
 
 echo json_encode([
     "status" => "success",

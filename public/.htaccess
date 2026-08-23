@@ -1,20 +1,25 @@
 # ==============================================================================
-# SEGURIDAD Y PROTECCIÓN DE CABECERAS HTTP - PLATAFORMA LEY 21.719
+# SEGURIDAD Y PROTECCIÓN DE CABECERAS HTTP - PLATAFORMA LEY 21.719 (HARDENED)
 # ==============================================================================
 
 # 1. Deshabilitar listado de directorios
 Options -Indexes
 
-# 2. Proteger archivos sensibles y ocultos (.env, .git, .json de config)
-<FilesMatch "^\.|\.(env|log|sql|bak|config)$">
+# 2. Proteger archivos sensibles, ocultos y bases de datos locales
+<FilesMatch "^\.|\.(env|log|sql|bak|config|json|sqlite|db|md)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-# 3. Cabeceras de Seguridad HTTP (Security Headers)
+# Permitir unicamente sitemap y manifiestos json publicos si existen
+<Files "sitemap-index.xml">
+    Allow from all
+</Files>
+
+# 3. Cabeceras de Seguridad HTTP Estrictas (Security Headers)
 <IfModule mod_headers.c>
-    # Prevenir Clickjacking
-    Header set X-Frame-Options "SAMEORIGIN"
+    # Prevenir Clickjacking (Framing)
+    Header set X-Frame-Options "DENY"
     
     # Prevenir sniffing de tipo MIME
     Header set X-Content-Type-Options "nosniff"
@@ -25,11 +30,17 @@ Options -Indexes
     # Política de Referrer estricta
     Header set Referrer-Policy "strict-origin-when-cross-origin"
     
-    # Política de permisos restrictiva
-    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # HSTS (Strict-Transport-Security) forzar HTTPS por 1 año
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    
+    # Política de permisos de hardware restrictiva
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+    
+    # Content Security Policy (CSP) Soberana
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' https://protegedatoslocal.inncivica.cloud https://inncivica.cloud;"
 </IfModule>
 
 # 4. Compresión Gzip para alto rendimiento
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
 </IfModule>

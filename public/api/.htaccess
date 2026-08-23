@@ -1,0 +1,8 @@
+# Bloquear acceso directo a cualquier archivo de datos o logs
+<FilesMatch "\.(json|log|txt|sqlite|db|bak)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Proteger contra listado
+Options -Indexes
