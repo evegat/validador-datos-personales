@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { InteractiveRatManager } from '../components/InteractiveRatManager';
+---
+
+<Layout
+  title="Matriz RAT Municipal Interactiva | ProtegeDatosLocal"
+  description="Gestione y exporte el Registro de Actividades de Tratamiento (RAT) de su municipalidad en formatos CSV y JSON según la Ley N° 21.719."
+>
+  <InteractiveRatManager client:load />
+</Layout>

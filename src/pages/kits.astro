@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { ActionKitsView } from '../components/ActionKitsView';
+import { InteractiveKitGenerator } from '../components/InteractiveKitGenerator';
 ---
 
 <Layout
-  title="Kits y Plantillas de Implementación Rápida | Validador MuniTech"
-  description="Descarga decretos tipo, cláusulas DPA para Mercado Público, matriz RAT y protocolos de brechas listos para usar en tu municipalidad."
+  title="Generador de Kits y Decretos Ley 21.719 | ProtegeDatosLocal"
+  description="Personalice y descargue en tiempo real decretos tipo, convenios DPA para Mercado Público, protocolos de brechas y pautas clínicas adaptadas a su municipalidad."
 >
-  <ActionKitsView client:load />
+  <InteractiveKitGenerator client:load />
 </Layout>
