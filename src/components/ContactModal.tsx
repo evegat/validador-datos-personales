@@ -46,7 +46,7 @@ ${reportContext?.immScore !== undefined ? `- Índice IMM Obtenido: ${reportConte
 
 Por favor coordinar reunión técnica o remitir TDR tipo para contratación.`);
 
-    window.open(`mailto:contacto@inncivica.cl?cc=evega.ap@gmail.com&subject=${subject}&body=${body}`, '_blank');
+    window.open(`mailto:evegat@uchile.cl?cc=evega.ap@gmail.com&subject=${subject}&body=${body}`, '_blank');
     setEnviado(true);
   };
 
