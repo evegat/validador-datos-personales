@@ -1,0 +1,35 @@
+# ==============================================================================
+# SEGURIDAD Y PROTECCIÓN DE CABECERAS HTTP - PLATAFORMA LEY 21.719
+# ==============================================================================
+
+# 1. Deshabilitar listado de directorios
+Options -Indexes
+
+# 2. Proteger archivos sensibles y ocultos (.env, .git, .json de config)
+<FilesMatch "^\.|\.(env|log|sql|bak|config)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 3. Cabeceras de Seguridad HTTP (Security Headers)
+<IfModule mod_headers.c>
+    # Prevenir Clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Prevenir sniffing de tipo MIME
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Protección Cross-Site Scripting (XSS)
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Política de Referrer estricta
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Política de permisos restrictiva
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# 4. Compresión Gzip para alto rendimiento
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>

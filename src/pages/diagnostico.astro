@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { QuestionnaireWizard } from '../components/QuestionnaireWizard';
+---
+
+<Layout
+  title="Diagnóstico y Gestión Institucional | Validador MuniTech"
+  description="Herramienta interactiva de evaluación de preparación municipal frente a la Ley N° 21.719 de Protección de Datos Personales."
+>
+  <div class="py-4">
+    <QuestionnaireWizard client:load />
+  </div>
+</Layout>
