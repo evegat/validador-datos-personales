@@ -3,68 +3,163 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout
-  title="ProtegeDatosLocal — Privacidad y Ley N° 21.719 para Municipios"
-  description="Diagnostica brechas, genera decretos oficiales y prepara tu municipio antes del 1 de diciembre de 2026 sin fricción."
+  title="ProtegeDatosLocal — ¿Qué tan preparado está su municipio para la Ley N° 21.719? | InnCivica Lab"
+  description="Evalúe capacidades por direcciones municipales, identifique brechas críticas y organice una hoja de ruta priorizada antes del 1 de diciembre de 2026."
 >
-  <!-- Hero Section -->
-  <section class="pt-16 pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+  <!-- Hero Section: Tono de Capacidad de Gestión -->
+  <section class="pt-16 pb-16 px-4 sm:px-6 max-w-5xl mx-auto text-center">
     <!-- Badge -->
     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900 mb-6">
       <span class="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse"></span>
-      Ley N° 21.719 · Vigencia 1 de Diciembre de 2026
+      Ley N° 21.719 · Entrada en Vigencia: 1 de Diciembre de 2026
     </div>
 
-    <!-- Main Title -->
+    <!-- Main Headline -->
     <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 dark:text-white tracking-tight leading-tight mb-5">
-      Protección de datos para tu Municipio, <span class="text-blue-600 dark:text-blue-400">sin fricción.</span>
+      ¿Qué tan preparado está su municipio para la <span class="text-blue-600 dark:text-blue-400">Ley de Protección de Datos?</span>
     </h1>
 
-    <!-- Short Crisp Subtitle -->
-    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
-      Evalúa brechas institucionales, genera decretos tipo y aplica el filtro de privacidad en tus trámites comunales en minutos.
+    <!-- Subtitle: 12 minutos -> diagnóstico -> brechas -> hoja de ruta -->
+    <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8 font-normal leading-relaxed">
+      En <strong>12 minutos</strong>, evalúe las capacidades de sus direcciones municipales, identifique brechas de riesgo y obtenga una <strong>hoja de ruta de adecuación</strong> con respaldo documental.
     </p>
 
     <!-- CTAs -->
-    <div class="flex flex-wrap justify-center gap-3 mb-14">
+    <div class="flex flex-wrap justify-center gap-3 mb-12">
       <a
         href="/diagnostico"
-        class="px-6 py-3.5 bg-slate-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold rounded-xl shadow-xs transition text-xs sm:text-sm"
+        class="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md transition text-xs sm:text-sm cursor-pointer"
       >
         Iniciar Diagnóstico Municipal →
       </a>
       <a
-        href="/kits"
+        href="#outputs-reales"
         class="px-5 py-3.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border border-slate-200 dark:border-slate-800 transition text-xs sm:text-sm"
       >
-        Generador de Decretos
+        Ver Entregables del Sistema ↓
       </a>
     </div>
 
-    <!-- 3 Clean Metrics Pills -->
+    <!-- 3 Metrics Cards (Rigurosas y sin alarmismo) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
       <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-center shadow-xs">
-        <div class="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white mb-0.5">1 Dic 2026</div>
-        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Entrada en Vigencia Plena</div>
+        <div class="text-xl sm:text-2xl font-black text-slate-950 dark:text-white mb-0.5">1 Dic 2026</div>
+        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Vigencia Plena de la Ley</div>
       </div>
       <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-center shadow-xs">
-        <div class="text-xl sm:text-2xl font-extrabold text-blue-600 dark:text-blue-400 mb-0.5">30 Días</div>
-        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Plazo Derechos Ciudadanos</div>
+        <div class="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 mb-0.5">30 Días Corridos</div>
+        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Plazo Derechos (Prorrogable)</div>
       </div>
       <div class="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 text-center shadow-xs">
-        <div class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mb-0.5">100% Local</div>
-        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Privacidad y Zero-Storage</div>
+        <div class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mb-0.5">100% Local</div>
+        <div class="text-xs font-medium text-slate-500 dark:text-slate-400">Privacidad Zero-Storage</div>
       </div>
     </div>
   </section>
 
-  <!-- 4 Main Action Modules (Big Clean Cards) -->
+  <!-- Section: Outputs Reales que Genera la Plataforma (Venta por Valor y Evidencia) -->
+  <section id="outputs-reales" class="py-16 px-4 sm:px-6 max-w-5xl mx-auto border-t border-slate-200/80 dark:border-slate-800/80">
+    <div class="text-center mb-12">
+      <span class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-1">
+        Entregables Concretos de Gestión
+      </span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white">
+        Lo que su Municipio Obtiene al Finalizar
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xl mx-auto">
+        Instrumentos ejecutivos diseñados para directores jurídicos, administradores y concejos comunales.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Output 1: Informe de Brechas e Índice IMM -->
+      <div class="bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-2.5 py-1 bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-[10px] font-bold rounded-md border border-blue-200 dark:border-blue-800">
+              ENTREGABLE 01
+            </span>
+            <span class="text-lg">📊</span>
+          </div>
+          <h3 class="text-base font-bold text-slate-950 dark:text-white mb-2">
+            Índice IMM & Mapa de Madurez (7 Ejes)
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Diagnóstico cuantitativo del 0 al 100 con gráfico radar que identifica de inmediato qué direcciones están más preparadas y cuáles requieren apoyo urgente.
+          </p>
+          <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 font-mono">
+            ✓ Nivel 0 a 4 certificado<br />
+            ✓ Desglose Salud, DIDECO y TI<br />
+            ✓ Cobertura de evidencia formal
+          </div>
+        </div>
+        <a href="/diagnostico" class="mt-6 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+          <span>Ver simulador de diagnóstico →</span>
+        </a>
+      </div>
+
+      <!-- Output 2: Hoja de Ruta Priorizada a 90 Días -->
+      <div class="bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-2.5 py-1 bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[10px] font-bold rounded-md border border-amber-200 dark:border-amber-800">
+              ENTREGABLE 02
+            </span>
+            <span class="text-lg">🚦</span>
+          </div>
+          <h3 class="text-base font-bold text-slate-950 dark:text-white mb-2">
+            Hoja de Ruta Secuencial de Adecuación
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Plan ordenado por fases temporales (Inmediata, 90 días, antes de vigencia) asignando responsabilidades claras a cada jefatura de servicio.
+          </p>
+          <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 font-mono">
+            ✓ Fase 1: Brechas críticas inmediatas<br />
+            ✓ Fase 2: Capacidades estructurales<br />
+            ✓ Entregable y esfuerzo estimado
+          </div>
+        </div>
+        <a href="/diagnostico" class="mt-6 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+          <span>Explorar hoja de ruta →</span>
+        </a>
+      </div>
+
+      <!-- Output 3: Informe Ejecutivo Imprimible en PDF -->
+      <div class="bg-white dark:bg-slate-900/90 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold rounded-md border border-emerald-200 dark:border-emerald-800">
+              ENTREGABLE 03
+            </span>
+            <span class="text-lg">📄</span>
+          </div>
+          <h3 class="text-base font-bold text-slate-950 dark:text-white mb-2">
+            Informe Ejecutivo para el Concejo
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Documento formal imprimible listo para ser remitido al Administrador Municipal, Alcaldía o presentado en sesión de Concejo Comunal.
+          </p>
+          <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 font-mono">
+            ✓ Formato ejecutivo visable<br />
+            ✓ Citas normativas oficiales BCN<br />
+            ✓ Sin marcas alarmistas
+          </div>
+        </div>
+        <a href="/diagnostico" class="mt-6 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1">
+          <span>Generar informe imprimible →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 Action Cards -->
   <section class="py-12 px-4 sm:px-6 max-w-5xl mx-auto border-t border-slate-200/80 dark:border-slate-800/80">
     <div class="text-center mb-10">
       <span class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 block mb-1">
-        Herramientas GovTech
+        Suite de Herramientas de Gestión
       </span>
       <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white">
-        ¿Qué deseas hacer hoy?
+        Módulos Especializados para su Comuna
       </h2>
     </div>
 
@@ -83,7 +178,7 @@ import Layout from '../layouts/Layout.astro';
           </p>
         </div>
         <div class="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-          <span>Comenzar evaluación</span>
+          <span>Comenzar evaluación gratuita</span>
           <span class="group-hover:translate-x-1 transition-transform">→</span>
         </div>
       </a>
@@ -117,7 +212,7 @@ import Layout from '../layouts/Layout.astro';
             Generador de Decretos y DPAs
           </h3>
           <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-            Personaliza decretos de DPO, cláusulas para proveedores en Mercado Público y convenios de confidencialidad RSH.
+            Personaliza decretos de gobernanza, cláusulas de encargado para Mercado Público y convenios RSH.
           </p>
         </div>
         <div class="text-xs font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1">
@@ -151,18 +246,19 @@ import Layout from '../layouts/Layout.astro';
   <section class="py-12 px-4 sm:px-6 max-w-4xl mx-auto">
     <div class="bg-white dark:bg-slate-900/90 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
       <div>
+        <div class="text-xs font-bold text-blue-600 dark:text-blue-400 mb-1">InnCivica Lab · Puesta al Día Acelerada</div>
         <h3 class="text-base font-bold text-slate-950 dark:text-white mb-1">
-          ¿Necesitas apoyo en la implementación municipal?
+          ¿Requiere acompañamiento técnico especializado para su comuna?
         </h3>
         <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
-          Acompañamiento técnico disponible mediante los mecanismos de contratación pública que resulten procedentes.
+          Disponible mediante los mecanismos de contratación pública que resulten procedentes (Mercado Público / Compra Ágil).
         </p>
       </div>
       <a
-        href="mailto:evega.ap@gmail.com?subject=Consulta%20ProtegeDatosLocal%20Municipal"
-        class="px-5 py-2.5 bg-slate-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shrink-0"
+        href="mailto:contacto@inncivica.cl?subject=Consulta%20Adecuacion%20Ley%2021719%20Municipal"
+        class="px-5 py-2.5 bg-slate-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shrink-0 cursor-pointer"
       >
-        Contactar a Eduardo Vega Toledo →
+        Contactar al Equipo Técnico →
       </a>
     </div>
   </section>

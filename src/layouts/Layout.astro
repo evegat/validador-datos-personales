@@ -7,11 +7,11 @@ interface Props {
 }
 
 const { 
-  title = "ProtegeDatosLocal — Privacidad y Ley N° 21.719 para Municipios", 
-  description = "Diagnóstico, filtro preventivo y decretos oficiales para la Ley N° 21.719 en municipios de Chile."
+  title = "ProtegeDatosLocal — Preparación y Gestión Ley N° 21.719 | InnCivica Lab", 
+  description = "Diagnóstico institucional, hoja de ruta y herramientas de adecuación a la Ley N° 21.719 para municipalidades de Chile."
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://aliceblue-dogfish-345779.hostingersite.com');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://protegedatos.inncivica.cl');
 ---
 
 <!DOCTYPE html>
@@ -51,33 +51,37 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://aliceblu
   </head>
   <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased transition-colors duration-200">
     <!-- Header -->
-    <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+    <header class="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <!-- Logo -->
         <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-8 h-8 rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-xs group-hover:scale-105 transition">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs group-hover:scale-105 transition">
             🛡️
           </div>
-          <span class="font-extrabold text-slate-950 dark:text-white tracking-tight text-sm sm:text-base">
-            ProtegeDatos<span class="text-blue-600 dark:text-blue-400">Local</span>
-          </span>
+          <div>
+            <div class="font-extrabold text-slate-950 dark:text-white tracking-tight text-sm sm:text-base leading-none">
+              ProtegeDatos<span class="text-blue-600 dark:text-blue-400">Local</span>
+            </div>
+            <div class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">
+              InnCivica Lab · GovTech
+            </div>
+          </div>
         </a>
 
         <!-- Desktop Nav -->
         <nav class="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600 dark:text-slate-300">
-          <a href="/diagnostico" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Diagnóstico</a>
+          <a href="/diagnostico" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Diagnóstico IMM</a>
           <a href="/filtro" class="hover:text-blue-600 dark:hover:text-blue-400 transition flex items-center gap-1">
             <span>Filtro SaaS</span>
             <span class="text-[9px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">EIPD</span>
           </a>
-          <a href="/kits" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Generador</a>
+          <a href="/kits" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Generador de Decretos</a>
           <a href="/rat" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Matriz RAT</a>
-          <a href="/guia" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Guía Ley</a>
+          <a href="/guia" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Guía Ley 21.719</a>
         </nav>
 
         <!-- Right Side: Dark Mode Toggle & Action Button -->
         <div class="flex items-center gap-3">
-          <!-- Theme Toggle Button -->
           <button
             id="theme-toggle"
             type="button"
@@ -88,12 +92,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://aliceblu
             <span class="hidden dark:inline">☀️</span>
           </button>
 
-          <!-- Start Button -->
           <a
             href="/diagnostico"
-            class="px-4 py-2 bg-slate-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition shadow-xs"
+            class="px-4 py-2 bg-slate-950 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer"
           >
-            Diagnóstico →
+            Diagnóstico Comunal →
           </a>
         </div>
       </div>
@@ -114,15 +117,58 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://aliceblu
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 py-10 text-xs text-slate-500 dark:text-slate-400 transition-colors">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-        <div>
-          <span class="font-bold text-slate-900 dark:text-white">ProtegeDatosLocal</span> · Plataforma GovTech de Privacidad Municipal.
-          <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Desarrollado por Eduardo Vega Toledo · <a href="mailto:evega.ap@gmail.com" class="text-blue-600 dark:text-blue-400 hover:underline">evega.ap@gmail.com</a></div>
+    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200/80 dark:border-slate-800/80 py-12 text-xs text-slate-500 dark:text-slate-400 transition-colors">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-slate-200/80 dark:border-slate-800/80">
+          <div class="md:col-span-2">
+            <div class="flex items-center gap-2 text-slate-900 dark:text-white font-black text-sm mb-2">
+              <span>🛡️ ProtegeDatosLocal · InnCivica Lab</span>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-md mb-3">
+              Instrumento de preparación y diagnóstico de madurez institucional para la adecuación a la Ley N° 21.719 de Protección de Datos Personales en gobiernos locales.
+            </p>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 space-y-0.5">
+              <div><strong>Aclaración Metodológica:</strong> Herramienta de apoyo a la gestión interna municipal. No constituye certificación de cumplimiento legal ni reemplaza la asesoría jurídica especializada.</div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider mb-3">Módulos GovTech</h4>
+            <ul class="space-y-1.5 text-xs">
+              <li><a href="/diagnostico" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Autodiagnóstico (7 Dimensiones)</a></li>
+              <li><a href="/filtro" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Filtro Preventivo SaaS (EIPD)</a></li>
+              <li><a href="/kits" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Generador de Decretos y DPAs</a></li>
+              <li><a href="/rat" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Inventario de Tratamientos (RAT)</a></li>
+              <li><a href="/guia" class="hover:text-blue-600 dark:hover:text-blue-400 transition">Guía Estratégica Ley 21.719</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider mb-3">Contacto Institucional</h4>
+            <div class="text-xs space-y-1.5">
+              <div class="font-bold text-slate-900 dark:text-white">InnCivica Lab</div>
+              <div>Consultor Principal: <strong>Eduardo Vega Toledo</strong></div>
+              <div>
+                <a href="mailto:contacto@inncivica.cl" class="text-blue-600 dark:text-blue-400 hover:underline">contacto@inncivica.cl</a>
+              </div>
+              <div class="text-[11px] text-slate-400">
+                Respaldo: <a href="mailto:evega.ap@gmail.com" class="text-slate-500 dark:text-slate-400 hover:underline">evega.ap@gmail.com</a>
+              </div>
+              <div class="pt-1">
+                <a href="https://www.linkedin.com/in/evegat1989/" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">LinkedIn Oficial ↗</a>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="flex gap-4 text-[11px] font-medium">
-          <a href="/transparencia-algoritmica" class="hover:text-slate-900 dark:hover:text-white transition">Transparencia Algorítmica</a>
-          <a href="/normativa" class="hover:text-slate-900 dark:hover:text-white transition">Normativa BCN</a>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400 text-center sm:text-left">
+          <div>
+            © {new Date().getFullYear()} InnCivica Lab · Todos los derechos reservados.
+          </div>
+          <div class="flex gap-4">
+            <a href="/transparencia-algoritmica" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Transparencia Algorítmica (Res. 372 CPLT)</a>
+            <a href="/normativa" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Base Normativa BCN</a>
+          </div>
         </div>
       </div>
     </footer>

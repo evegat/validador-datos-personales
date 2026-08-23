@@ -5,209 +5,173 @@ interface ContactModalProps {
   onClose: () => void;
   defaultMunicipality?: string;
   defaultRole?: string;
+  reportContext?: {
+    immScore?: number;
+    criticalGaps?: number;
+  };
 }
 
 export const ContactModal: React.FC<ContactModalProps> = ({
   isOpen,
   onClose,
   defaultMunicipality = '',
-  defaultRole = ''
+  defaultRole = 'Equipo Directivo Municipal',
+  reportContext
 }) => {
   const [municipio, setMunicipio] = useState(defaultMunicipality);
   const [nombre, setNombre] = useState('');
   const [cargo, setCargo] = useState(defaultRole);
-  const [correo, setCorreo] = useState('');
+  const [email, setEmail] = useState('');
   const [telefono, setTelefono] = useState('');
-  const [tipoServicio, setTipoServicio] = useState('Plan de Puesta al Día Rápido (Compra Ágil Mercado Público)');
-  const [mensaje, setMensaje] = useState('');
-  const [sent, setSent] = useState(false);
+  const [tipoServicio, setTipoServicio] = useState('Plan de Puesta al Día Acelerado (Mercado Público)');
+  const [enviado, setEnviado] = useState(false);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Prepare mailto link
-    const subject = encodeURIComponent(`[ProtegeDatosLocal] Requerimiento de Acompañamiento - ${municipio || 'Municipalidad'}`);
-    const body = encodeURIComponent(
-      `Estimado Eduardo Vega Toledo,
+    // In local zero-storage mode, open mailto with prefilled executive summary
+    const subject = encodeURIComponent(`[ProtegeDatosLocal] Solicitud de Acompañamiento - ${municipio || 'Municipalidad'}`);
+    const body = encodeURIComponent(`SOLICITUD DE ACOMPAÑAMIENTO TÉCNICO LEY N° 21.719
+InnCivica Lab / Eduardo Vega Toledo
 
-` +
-      `Me contacto desde la plataforma ProtegeDatosLocal para solicitar información y cotización sobre el servicio de acompañamiento institucional.
+DATOS INSTITUCIONALES:
+- Municipalidad: ${municipio}
+- Solicitante: ${nombre}
+- Cargo/Dirección: ${cargo}
+- Correo Institucional: ${email}
+- Teléfono: ${telefono}
+- Servicio de Interés: ${tipoServicio}
+${reportContext?.immScore !== undefined ? `- Índice IMM Obtenido: ${reportContext.immScore}/100 (${reportContext.criticalGaps} brechas críticas)` : ''}
 
-` +
-      `DATOS DE CONTACTO MUNICIPAL:
-` +
-      `- Municipalidad: ${municipio}
-` +
-      `- Funcionario(a): ${nombre}
-` +
-      `- Cargo / Dirección: ${cargo}
-` +
-      `- Correo Institucional: ${correo}
-` +
-      `- Teléfono: ${telefono}
-` +
-      `- Modalidad de Interés: ${tipoServicio}
+Por favor coordinar reunión técnica o remitir TDR tipo para contratación.`);
 
-` +
-      `DETALLE DEL REQUERIMIENTO:
-` +
-      `${mensaje || 'Solicitamos coordinar una reunión técnica para revisar la propuesta y los Términos de Referencia para Compra Ágil en Mercado Público.'}
-
-` +
-      `Saludos cordiales,
-${nombre}`
-    );
-
-    window.open(`mailto:evega.ap@gmail.com?subject=${subject}&body=${body}`, '_blank');
-    setSent(true);
+    window.open(`mailto:contacto@inncivica.cl?cc=evega.ap@gmail.com&subject=${subject}&body=${body}`, '_blank');
+    setEnviado(true);
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 sm:p-8 border border-slate-200 my-8">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-700 block">
-              Acompañamiento Técnico Especializado
-            </span>
-            <h3 className="text-xl font-bold text-slate-900">
-              Solicitar Reunión o Cotización Municipal
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 text-lg font-bold p-1 cursor-pointer"
-            aria-label="Cerrar modal"
-          >
-            ✕
-          </button>
-        </div>
-
-        {sent ? (
-          <div className="text-center py-8 space-y-4">
-            <div className="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-3xl mx-auto">
-              ✉️
+    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+        {!enviado ? (
+          <>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-1">
+                  InnCivica Lab · Acompañamiento Técnico
+                </span>
+                <h3 className="text-lg font-bold text-slate-950 dark:text-white">
+                  Solicitar Informe Completo y Términos de Referencia (TDR)
+                </h3>
+              </div>
+              <button
+                onClick={onClose}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold p-1 cursor-pointer"
+              >
+                ✕
+              </button>
             </div>
-            <h4 className="text-lg font-bold text-slate-900">
-              ¡Mensaje Preparado!
-            </h4>
-            <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-              Se ha abierto tu cliente de correo para enviar el requerimiento directamente a <strong>evega.ap@gmail.com</strong>. Te responderemos en un plazo máximo de 24 horas hábiles.
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              Complete los antecedentes para recibir la propuesta de acompañamiento técnico y los TDR prediseñados para contratación mediante Mercado Público.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Municipalidad:</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: I. Municipalidad de ..."
+                    value={municipio}
+                    onChange={(e) => setMunicipio(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-850"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Su Nombre y Apellido:</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Juan Pérez"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-850"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Cargo / Dirección:</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Dirección Jurídica / SECPLA"
+                    value={cargo}
+                    onChange={(e) => setCargo(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-850"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Correo Institucional:</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="nombre@municipalidad.cl"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-850"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Modalidad de Interés:</label>
+                <select
+                  value={tipoServicio}
+                  onChange={(e) => setTipoServicio(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
+                  <option value="Plan de Puesta al Día Acelerado (Mercado Público)">Plan de Puesta al Día Acelerado (Consultoría 30-60 días)</option>
+                  <option value="Levantamiento de Matriz RAT e Inventario Comunal">Levantamiento de Matriz RAT e Inventario Comunal</option>
+                  <option value="Auditoría de Salud (CESFAM) y Social (RSH)">Auditoría Especializada Salud (CESFAM) y Social (RSH)</option>
+                  <option value="Capacitación a Directores y Funcionarios Municipales">Capacitación a Directores y Funcionarios Municipales</option>
+                </select>
+              </div>
+
+              <div className="pt-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+                <span className="text-[11px] text-slate-400">
+                  Respuesta técnica en menos de 24 horas hábiles.
+                </span>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-xs cursor-pointer transition"
+                >
+                  Enviar Requerimiento →
+                </button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <div className="text-center py-6">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
+              ✓
+            </div>
+            <h3 className="text-base font-bold text-slate-950 dark:text-white mb-1">
+              ¡Requerimiento Preparado Exitosamente!
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              Se ha generado la comunicación formal dirigida al equipo de InnCivica Lab y a Eduardo Vega Toledo. Nos contactaremos a <strong>{email}</strong> a la brevedad.
             </p>
             <button
-              onClick={() => { setSent(false); onClose(); }}
-              className="px-6 py-2 bg-blue-700 text-white font-bold text-xs rounded-xl shadow cursor-pointer"
+              onClick={() => { setEnviado(false); onClose(); }}
+              className="px-6 py-2 bg-slate-900 dark:bg-slate-800 text-white font-bold text-xs rounded-xl"
             >
               Cerrar Ventana
             </button>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Complete los datos para coordinar una sesión de trabajo técnico o remitir los Términos de Referencia (TDR) listos para <strong>Compra Ágil en Mercado Público (Mercado Público)</strong>.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Municipalidad *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ej: I. Municipalidad de ..."
-                  value={municipio}
-                  onChange={(e) => setMunicipio(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nombre Funcionario(a) *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ej: Carolina Rojas"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Cargo / Dirección *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ej: Administrador / Jurídico / Control"
-                  value={cargo}
-                  onChange={(e) => setCargo(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Correo Institucional *</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="nombre@municipio.cl"
-                  value={correo}
-                  onChange={(e) => setCorreo(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Modalidad de Acompañamiento</label>
-              <select
-                value={tipoServicio}
-                onChange={(e) => setTipoServicio(e.target.value)}
-                className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-slate-50 focus:ring-2 focus:ring-blue-600 focus:outline-none"
-              >
-                <option value="Plan de Puesta al Día Rápido (Compra Ágil Mercado Público)">Plan de Puesta al Día Rápido (Compra Ágil Mercado Público — 30 días)</option>
-                <option value="Servicio de DPO Externo / Asesoría Mensual Continua">Servicio de DPO Externo / Asesoría Mensual Continua</option>
-                <option value="Taller de Capacitación Funcionaria y Deber de Secreto">Taller de Capacitación Funcionaria y Deber de Secreto</option>
-                <option value="Reunión Técnica de Orientación Inicial (Gratuita)">Reunión Técnica de Orientación Inicial (Gratuita)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Comentarios o Urgencia Específica</label>
-              <textarea
-                rows={2}
-                placeholder="Ej: Necesitamos levantar el RAT de DIDECO y redactar el decreto de DPO para el próximo mes."
-                value={mensaje}
-                onChange={(e) => setMensaje(e.target.value)}
-                className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none"
-              ></textarea>
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <div className="text-[11px] text-slate-500">
-                Directo: <strong>evega.ap@gmail.com</strong>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow cursor-pointer transition flex items-center gap-1.5"
-                >
-                  <span>Enviar Solicitud</span>
-                  <span>→</span>
-                </button>
-              </div>
-            </div>
-          </form>
         )}
       </div>
     </div>
