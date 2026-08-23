@@ -251,7 +251,7 @@ body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; color: #0f172a; li
 
   <div class='footer'>
     <strong>InnCivica Lab · Tecnologías de Gestión Pública</strong><br>
-    Este informe constituye un instrumento de orientación técnica interna para la toma de decisiones del Concejo y la Alcaldía.
+    Este informe constituye un instrumento referencial de orientación técnica interna para la toma de decisiones del Concejo y la Alcaldía, derivado estrictamente de las declaraciones ingresadas por el usuario bajo su propia responsabilidad. No constituye auditoría vinculante ni certificación oficial de cumplimiento ante la CGR ni la APDP.
   </div>
 </div>
 </body>

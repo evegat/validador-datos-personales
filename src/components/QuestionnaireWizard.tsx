@@ -21,6 +21,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     (initialDepartment as MunicipalDepartment) || 'ALCALDIA_JURIDICO'
   );
   const [isSubmittingReg, setIsSubmittingReg] = useState(false);
+  const [botCheck, setBotCheck] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Questions and responses state
@@ -79,7 +80,8 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
           nombre: nombre.trim(),
           cargo: cargo.trim(),
           departamento: departamento,
-          email: email.trim()
+          email: email.trim(),
+          bot_check: botCheck
         })
       });
     } catch (err) {
@@ -299,6 +301,17 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
           </p>
 
           <form onSubmit={handleRegisterAndStart} className="max-w-lg mx-auto space-y-4 text-left mb-8">
+            {/* Honeypot anti-bot invisible (100% gratuito y sin cookies de terceros) */}
+            <div style={{ display: 'none' }} aria-hidden="true">
+              <input
+                type="text"
+                name="website_url_check"
+                value={botCheck}
+                onChange={(e) => setBotCheck(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -678,6 +691,18 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
                 </li>
               </ul>
             </div>
+          </div>
+
+
+          
+          {/* DISCLAIMER Y DESLINDE DE RESPONSABILIDAD METODOLÓGICA */}
+          <div className="bg-slate-50 dark:bg-slate-900/80 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 text-xs mb-1.5">
+              <span>⚖️ Aclaración Metodológica y Deslinde de Responsabilidad</span>
+            </div>
+            <p>
+              El Índice de Madurez Municipal (IMM) y los hallazgos presentados en este informe derivan <strong>estrictamente de las respuestas declaradas bajo propia responsabilidad por la persona o funcionario que contestó el autodiagnóstico</strong>. Este resultado constituye una estimación técnica orientativa de gestión interna y podría no corresponder a la situación fáctica, jurídica o tecnológica exhaustiva de la municipalidad, siendo de exclusiva responsabilidad del declarante la veracidad de los antecedentes ingresados. No constituye auditoría vinculante ni certificación oficial de cumplimiento ante la Contraloría General de la República (CGR) ni ante la Agencia de Protección de Datos Personales (APDP).
+            </p>
           </div>
 
 

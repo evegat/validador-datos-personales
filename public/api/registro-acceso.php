@@ -53,6 +53,13 @@ if (file_exists($rate_file)) {
 
 // Sanitización y Validación Estricta
 $input = json_decode(file_get_contents("php://input"), true);
+// 0. Honeypot Anti-Bot Silencioso (100% Gratis, Cero Cookies)
+if (!empty($input['bot_check']) || !empty($input['website_url_check'])) {
+    // Si un bot llenó el campo oculto, responder éxito simulado y abortar silenciosamente
+    echo json_encode(["status" => "success", "message" => "OK"]);
+    exit;
+}
+
 if (!$input || empty($input['email']) || empty($input['municipio']) || empty($input['nombre'])) {
     http_response_code(400);
     echo json_encode(["status" => "error", "message" => "Campos obligatorios incompletos"]);
