@@ -117,5 +117,23 @@ export const ACTIONABLE_KITS: TemplateKit[] = [
       'Perfil y requisitos de idoneidad del consultor especializado',
       'Condiciones de pago contra informe de conformidad de Administrador/Jurídico'
     ]
+  },
+  {
+    id: 'kit-tdr-honorarios-hsa',
+    code: 'KIT-07',
+    title: 'Términos de Referencia: Contratación a Honorarios a Suma Alzada (HSA)',
+    subtitle: 'Bases técnicas para Decreto Alcaldicio de Honorarios por Cometido Específico con valorización desglosada',
+    targetRole: 'Alcaldía / Administrador Municipal / Jurídico / DAF',
+    effortToImplement: 'Listo para visación jurídica y Decreto Alcaldicio',
+    legalBasis: 'Artículo 4° de la Ley N° 18.883 (Estatuto Administrativo Municipal) / Ley N° 21.719',
+    fileFormat: 'DOCX Visado',
+    description: 'Términos de referencia formalizados para contratar la consultoría experta de puesta al día mediante honorarios a suma alzada. Incluye fundamentación jurídica CGR sobre cometido accidental no habitual y calendario de pagos valorizado en 3 hitos (28 UTM / ~$1.900.000 CLP bruto).',
+    structurePreview: [
+      'Justificación jurídica del cometido accidental y transitorio (Ley 21.719)',
+      'Objetivos, alcance en 30 días y 5 productos entregables',
+      'Valorización presupuestaria: 28 UTM (~$1.900.000 CLP bruto)',
+      'Calendario de 3 hitos de pago contra informe de conformidad técnica (30% / 40% / 30%)',
+      'Cláusula de confidencialidad, propiedad intelectual y entrega en formatos abiertos'
+    ]
   }
 ];

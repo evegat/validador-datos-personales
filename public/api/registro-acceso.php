@@ -77,6 +77,8 @@ $email = htmlspecialchars($email_raw, ENT_QUOTES, 'UTF-8');
 $municipio = htmlspecialchars(strip_tags($input['municipio'] ?? 'Municipalidad'), ENT_QUOTES, 'UTF-8');
 $nombre = htmlspecialchars(strip_tags($input['nombre'] ?? 'Funcionario'), ENT_QUOTES, 'UTF-8');
 $cargo = htmlspecialchars(strip_tags($input['cargo'] ?? 'Direccion Municipal'), ENT_QUOTES, 'UTF-8');
+$rol_estamento = htmlspecialchars(strip_tags($input['rol_estamento'] ?? 'DIRECTIVO'), ENT_QUOTES, 'UTF-8');
+$canal_origen = htmlspecialchars(strip_tags($input['canal_origen'] ?? 'directo'), ENT_QUOTES, 'UTF-8');
 $departamento = htmlspecialchars(strip_tags($input['departamento'] ?? 'General'), ENT_QUOTES, 'UTF-8');
 $fecha = date("d-m-Y H:i:s");
 
@@ -95,6 +97,8 @@ $entry = [
     "municipio" => $municipio,
     "nombre" => $nombre,
     "cargo" => $cargo,
+    "rol_estamento" => $rol_estamento,
+    "canal_origen" => $canal_origen,
     "departamento" => $departamento,
     "email" => $email,
     "hash_ip" => substr(md5($ip . 'SECRET_SALT_2026'), 0, 10)
@@ -104,7 +108,9 @@ $entry = [
 
 // Notificación por Correo Seguro (Prevenir Header Injection)
 $to = "evegat@uchile.cl, evega.ap@gmail.com";
-$subject = "=?UTF-8?B?" . base64_encode("[ProtegeDatosLocal] Nuevo Acceso - " . $municipio) . "?=";
+$subject = "=?UTF-8?B?" . base64_encode("[ProtegeDatosLocal] Nuevo Acceso ({$rol_estamento}) - " . $municipio) . "?=";
+
+$rol_badge = $rol_estamento === 'CONCEJAL' ? '⚖️ Concejalía / Fiscalización' : ($rol_estamento === 'FUNCIONARIO_OPERATIVO' ? '👥 Funcionario Operativo' : '👔 Equipo Directivo');
 
 $message = "
 <html>
@@ -113,6 +119,7 @@ $message = "
 body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-height: 1.5; }
 .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 20px 0; }
 .tag { background: #0284c7; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+.badge { background: #0f172a; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -120,12 +127,14 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #0f172a; line-he
 <div class='card'>
   <p><strong>Municipalidad:</strong> {$municipio}</p>
   <p><strong>Funcionario(a):</strong> {$nombre}</p>
-  <p><strong>Cargo / Dirección:</strong> {$cargo}</p>
+  <p><strong>Cargo / Función:</strong> {$cargo}</p>
+  <p><strong>Estamento / Rol:</strong> <span class='badge'>{$rol_badge}</span></p>
+  <p><strong>Canal de Origen:</strong> <span class='tag'>{$canal_origen}</span></p>
   <p><strong>Área a Evaluar:</strong> <span class='tag'>{$departamento}</span></p>
-  <p><strong>Correo Institucional:</strong> <a href='mailto:{$email}'>{$email}</a></p>
+  <p><strong>Correo:</strong> <a href='mailto:{$email}'>{$email}</a></p>
   <p><strong>Fecha y Hora:</strong> {$fecha}</p>
 </div>
-<p><em>ProtegeDatosLocal · ProtegeDatosLocal</em></p>
+<p><em>ProtegeDatosLocal · Eduardo Vega Toledo</em></p>
 </body>
 </html>
 ";

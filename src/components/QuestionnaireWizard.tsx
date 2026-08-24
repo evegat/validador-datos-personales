@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { QUESTIONS, DIMENSIONS } from '../data/questions';
-import type { QuestionResponseType, MunicipalDepartment, Question, DimensionAssessmentResult } from '../types';
+import type { QuestionResponseType, MunicipalDepartment, Question, DimensionAssessmentResult, UserRoleCategory } from '../types';
 import { RadarChart } from './RadarChart';
 import { ContactModal } from './ContactModal';
 
@@ -16,6 +16,8 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   const [municipio, setMunicipio] = useState('');
   const [nombre, setNombre] = useState('');
   const [cargo, setCargo] = useState('Dirección de Asesoría Jurídica');
+  const [rolEstamento, setRolEstamento] = useState<UserRoleCategory>('DIRECTIVO');
+  const [campaignSource, setCampaignSource] = useState('directo');
   const [email, setEmail] = useState('');
   const [departamento, setDepartamento] = useState<MunicipalDepartment>(
     (initialDepartment as MunicipalDepartment) || 'ALCALDIA_JURIDICO'
@@ -34,18 +36,31 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   const [emailSuccess, setEmailSuccess] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
-  // Load persistence
+  // Load persistence & capture URL campaign source
   useEffect(() => {
     try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const src = urlParams.get('src') || urlParams.get('utm_source') || 'directo';
+      setCampaignSource(src);
+
+      // Telemetría anónima Zero-Cookie de entrada
+      fetch('/api/telemetria.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: src, path: '/diagnostico' })
+      }).catch(() => {});
+
       const savedMuni = localStorage.getItem('pdl_muni');
       const savedNombre = localStorage.getItem('pdl_nombre');
       const savedCargo = localStorage.getItem('pdl_cargo');
+      const savedRol = localStorage.getItem('pdl_rol') as UserRoleCategory;
       const savedEmail = localStorage.getItem('pdl_email');
       const savedAnswers = localStorage.getItem('pdl_answers');
 
       if (savedMuni) setMunicipio(savedMuni);
       if (savedNombre) setNombre(savedNombre);
       if (savedCargo) setCargo(savedCargo);
+      if (savedRol) setRolEstamento(savedRol);
       if (savedEmail) {
         setEmail(savedEmail);
         setEmailDestino(savedEmail);
@@ -59,6 +74,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
       localStorage.setItem('pdl_muni', municipio);
       localStorage.setItem('pdl_nombre', nombre);
       localStorage.setItem('pdl_cargo', cargo);
+      localStorage.setItem('pdl_rol', rolEstamento);
       localStorage.setItem('pdl_email', email);
       localStorage.setItem('pdl_answers', JSON.stringify(newAnswers));
     } catch (e) {}
@@ -71,7 +87,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     setIsSubmittingReg(true);
 
     try {
-      // Registrar traza en backend
+      // Registrar traza en backend con rol y canal
       await fetch('/api/registro-acceso.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -79,6 +95,8 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
           municipio: municipio.trim(),
           nombre: nombre.trim(),
           cargo: cargo.trim(),
+          rol_estamento: rolEstamento,
+          canal_origen: campaignSource,
           departamento: departamento,
           email: email.trim(),
           bot_check: botCheck
@@ -95,6 +113,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
       localStorage.setItem('pdl_muni', municipio);
       localStorage.setItem('pdl_nombre', nombre);
       localStorage.setItem('pdl_cargo', cargo);
+      localStorage.setItem('pdl_rol', rolEstamento);
       localStorage.setItem('pdl_email', email);
       setEmailDestino(email);
     } catch (err) {}
@@ -134,6 +153,8 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
   let totalScore = 0;
   let maxPossibleScore = 0;
   const criticalGaps: Question[] = [];
+  const unknownGaps: Question[] = [];
+  const nonCompliantGaps: Question[] = [];
 
   filteredQuestions.forEach(q => {
     const ans = answers[q.id];
@@ -141,7 +162,13 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
       maxPossibleScore += 3;
       if (ans === 'SI') totalScore += 3;
       else if (ans === 'PARCIAL') totalScore += 1.5;
-      else if (ans === 'NO' || ans === 'NO_SABEMOS') {
+      else if (ans === 'NO') {
+        nonCompliantGaps.push(q);
+        if (q.criticidad === 'CRITICA' || q.criticidad === 'ALTA') {
+          criticalGaps.push(q);
+        }
+      } else if (ans === 'NO_SABEMOS') {
+        unknownGaps.push(q);
         if (q.criticidad === 'CRITICA' || q.criticidad === 'ALTA') {
           criticalGaps.push(q);
         }
@@ -158,6 +185,16 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     'Nivel 3 · Implementado Formalmente',
     'Nivel 4 · Gestionado y Optimizado'
   ];
+
+  // Dynamic Title according to Role
+  const reportHeaderTitle = 
+    rolEstamento === 'CONCEJAL'
+      ? 'Minuta de Fiscalización y Riesgo Legal para el Concejo Municipal'
+      : rolEstamento === 'FUNCIONARIO_OPERATIVO'
+      ? 'Minuta Interna de Diagnóstico y Propuesta de Adecuación para Jefatura'
+      : rolEstamento === 'CONSULTOR_EXTERNO'
+      ? 'Informe Técnico de Diagnóstico y Hoja de Ruta de Cumplimiento'
+      : 'Informe Ejecutivo de Madurez y Preparación Institucional';
 
   const dimensionResults: DimensionAssessmentResult[] = DIMENSIONS.map(d => {
     const dimQuestions = filteredQuestions.filter(q => q.dimensionId === d.id);
@@ -205,10 +242,12 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
           email: emailDestino,
           nombre: nombre || 'Directivo Municipal',
           cargo: cargo || 'Dirección Municipal',
+          rol_estamento: rolEstamento,
           municipio: municipio || 'I. Municipalidad',
           immScore: finalScore,
           nivel: `${maturityLevel}/4`,
-          brechas: criticalGaps.length
+          brechas: criticalGaps.length,
+          desconocidas: unknownGaps.length
         })
       });
       setEmailSuccess(true);
@@ -220,8 +259,8 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     }
   };
 
-  const handleDownloadWordTDR = () => {
-    const title = `Bases Técnicas TDR - Ley 21.719 - ${municipio}`;
+  const handleDownloadWordHSA = () => {
+    const title = `Bases Técnicas TDR Honorarios Suma Alzada Art 4 Ley 18883 - ${municipio}`;
     const wordHtml = `
       <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
       <head>
@@ -229,8 +268,8 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
         <title>${title}</title>
         <style>
           body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.4; color: #111; margin: 2.5cm; }
-          h1 { font-size: 16pt; color: #0A2540; border-bottom: 2pt solid #0A2540; padding-bottom: 4pt; margin-bottom: 12pt; text-transform: uppercase; }
-          h2 { font-size: 13pt; color: #1e40af; margin-top: 14pt; margin-bottom: 6pt; }
+          h1 { font-size: 15pt; color: #0A2540; border-bottom: 2pt solid #0A2540; padding-bottom: 4pt; margin-bottom: 12pt; text-transform: uppercase; }
+          h2 { font-size: 12pt; color: #1e40af; margin-top: 14pt; margin-bottom: 6pt; }
           p, li { font-size: 11pt; margin-bottom: 6pt; text-align: justify; }
           .callout { background: #f1f5f9; border-left: 4pt solid #1e40af; padding: 8pt 12pt; margin: 10pt 0; font-size: 10pt; }
           .footer { font-size: 9pt; color: #64748b; border-top: 1pt solid #cbd5e1; padding-top: 6pt; margin-top: 20pt; }
@@ -240,35 +279,42 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
         </style>
       </head>
       <body>
-        <h1>Bases Técnicas y Términos de Referencia (TDR) Tipo</h1>
-        <p><strong>REQUERIMIENTO:</strong> Contratación de Asesoría Especializada para la Puesta al Día y Adecuación Municipal a la Ley N° 21.719 de Protección de Datos Personales.</p>
+        <h1>Bases Técnicas y Términos de Referencia (TDR)</h1>
+        <p><strong>MODALIDAD:</strong> Contratación a Honorarios a Suma Alzada por Cometido Específico (Artículo 4° de la Ley N° 18.883).</p>
         <p><strong>MUNICIPALIDAD:</strong> ${municipio.toUpperCase()}</p>
         <p><strong>FECHA DE EMISIÓN:</strong> ${new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
         <div class='callout'>
-          <strong>VÍAS DE CONTRATACIÓN PROCEDENTES SEGÚN NORMATIVA:</strong><br>
-          • <strong>Vía 1:</strong> Honorarios a Suma Alzada por Cometido Específico (Art. 4° Ley N° 18.883, Estatuto Administrativo Municipal).<br>
-          • <strong>Vía 2:</strong> Compra Ágil / Mercado Público (&lt; 30 UTM - Ley N° 19.886 y Ley N° 21.634, Subtítulo 22).
+          <strong>JUSTIFICACIÓN JURÍDICA SEGÚN JURISPRUDENCIA DE LA CONTRALORÍA GENERAL DE LA REPÚBLICA (CGR):</strong><br>
+          La entrada en vigencia perentoria de la Ley N° 21.719 (1-Dic-2026) constituye una exigencia de adecuación institucional extraordinaria, transitoria y no habitual de la dotación municipal de planta, facultando la contratación a honorarios por cometido específico mediante Decreto Alcaldicio.
         </div>
 
-        <h2>1. Objetivos del Servicio</h2>
-        <p>Prestar asistencia técnica y jurídica integral para levantar las brechas de cumplimiento, estructurar la gobernanza interna, diseñar el Registro de Actividades de Tratamiento (RAT) y redactar los instrumentos administrativos exigidos antes del hito de vigencia legal del 1 de diciembre de 2026.</p>
+        <h2>1. Objetivos del Cometido</h2>
+        <p>Prestar asistencia técnica y jurídica integral para levantar las brechas de cumplimiento, estructurar la gobernanza comunal, diseñar el Registro de Actividades de Tratamiento (RAT) y redactar los actos administrativos exigidos antes de la entrada en vigencia de la Ley N° 21.719.</p>
 
-        <h2>2. Productos y Entregables Formales</h2>
+        <h2>2. Productos y Entregables Obligatorios</h2>
         <table>
-          <tr><th>N°</th><th>Entregable Requerido</th><th>Plazo Estimado</th></tr>
-          <tr><td>1</td><td>Informe Ejecutivo de Diagnóstico de Brechas por Dirección Municipal</td><td>Día 15</td></tr>
-          <tr><td>2</td><td>Matriz RAT de Tratamientos por Direcciones (Salud, Social, Tránsito, TI, DAF)</td><td>Día 30</td></tr>
-          <tr><td>3</td><td>Paquete de Decretos Alcaldicios (Designación DPO y Comité de Privacidad)</td><td>Día 40</td></tr>
-          <tr><td>4</td><td>Cláusulas Contractuales de Encargado (DPA) para Contratos de Software en Mercado Público</td><td>Día 50</td></tr>
-          <tr><td>5</td><td>Taller de Capacitación en Deber de Secreto para Funcionarios y Directores</td><td>Día 60</td></tr>
+          <tr><th>N°</th><th>Producto Formal Exigido</th><th>Plazo</th></tr>
+          <tr><td>1</td><td>Informe Ejecutivo de Diagnóstico de Brechas por Dirección Municipal</td><td>Día 10</td></tr>
+          <tr><td>2</td><td>Matriz RAT de Tratamientos por Direcciones (Salud, Social, Tránsito, TI, DAF)</td><td>Día 20</td></tr>
+          <tr><td>3</td><td>Paquete de Decretos Alcaldicios (Designación DPO, Comité de Privacidad y Política Comunal)</td><td>Día 25</td></tr>
+          <tr><td>4</td><td>Cláusulas Contractuales de Encargado (DPA) para Contratos de Software en Mercado Público</td><td>Día 27</td></tr>
+          <tr><td>5</td><td>Jornada de Capacitación en Deber de Secreto e Informe Final de Cumplimiento Visado</td><td>Día 30</td></tr>
         </table>
 
-        <h2>3. Perfil del Consultor de Referencia</h2>
-        <p>Profesional universitario con postgrado o especialización en gestión pública y derecho de las tecnologías. Consultor de referencia para consultas técnicas: <strong>Eduardo Vega Toledo</strong> (Consultor en Gestión Pública, Universidad de Chile · Contacto: <code>evegat@uchile.cl</code>).</p>
+        <h2>3. Valorización Presupuestaria y Calendario de Hitos de Pago</h2>
+        <p>El valor total del cometido asciende a la suma única de <strong>28 UTM (aprox. $1.900.000 CLP bruto)</strong>, pagadero en 3 hitos contra informe de conformidad técnica emitido por la Contraparte Municipal:</p>
+        <ul>
+          <li><strong>Hito 1 (30% - ~$570.000 CLP):</strong> Contra entrega del Plan de Trabajo y Diagnóstico Preliminar.</li>
+          <li><strong>Hito 2 (40% - ~$760.000 CLP):</strong> Contra entrega de la Matriz RAT Municipal y Borradores de Decretos/DPA.</li>
+          <li><strong>Hito 3 (30% - ~$570.000 CLP):</strong> Contra ejecución del Taller de Capacitación e Informe Final Visado.</li>
+        </ul>
+
+        <h2>4. Consultor de Referencia Técnica</h2>
+        <p>Profesional especializado: <strong>Eduardo Vega Toledo</strong> (Consultor en Gestión Pública, Universidad de Chile · Contacto: <code>evegat@uchile.cl</code>).</p>
 
         <div class='footer'>
-          Documento generado mediante la plataforma ProtegeDatosLocal · ProtegeDatosLocal (protegedatoslocal.protegedatoslocal.cloud)
+          Documento generado mediante ProtegeDatosLocal · Eduardo Vega Toledo
         </div>
       </body>
       </html>
@@ -278,7 +324,70 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `TDR_Adecuacion_Ley21719_${municipio.replace(/\s+/g, '_')}.doc`;
+    a.download = `TDR_Honorarios_Suma_Alzada_Ley21719_${municipio.replace(/\s+/g, '_')}.doc`;
+    a.click();
+  };
+
+  const handleDownloadWordTDR = () => {
+    const title = `Bases Técnicas TDR Compra Ágil - Ley 21.719 - ${municipio}`;
+    const wordHtml = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset='utf-8'>
+        <title>${title}</title>
+        <style>
+          body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.4; color: #111; margin: 2.5cm; }
+          h1 { font-size: 15pt; color: #0A2540; border-bottom: 2pt solid #0A2540; padding-bottom: 4pt; margin-bottom: 12pt; text-transform: uppercase; }
+          h2 { font-size: 12pt; color: #1e40af; margin-top: 14pt; margin-bottom: 6pt; }
+          p, li { font-size: 11pt; margin-bottom: 6pt; text-align: justify; }
+          .callout { background: #f1f5f9; border-left: 4pt solid #1e40af; padding: 8pt 12pt; margin: 10pt 0; font-size: 10pt; }
+          .footer { font-size: 9pt; color: #64748b; border-top: 1pt solid #cbd5e1; padding-top: 6pt; margin-top: 20pt; }
+          table { width: 100%; border-collapse: collapse; margin: 10pt 0; }
+          th, td { border: 1pt solid #94a3b8; padding: 6pt 8pt; text-align: left; font-size: 10pt; }
+          th { background: #f8fafc; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h1>Bases Técnicas y Términos de Referencia (TDR) Compra Ágil</h1>
+        <p><strong>MODALIDAD:</strong> Compra Ágil / Mercado Público (&lt; 30 UTM - Ley N° 19.886 y D.S. N° 250 de Hacienda).</p>
+        <p><strong>MUNICIPALIDAD:</strong> ${municipio.toUpperCase()}</p>
+        <p><strong>FECHA DE EMISIÓN:</strong> ${new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+
+        <div class='callout'>
+          <strong>REQUERIMIENTO:</strong> Servicio Especializado de Consultoría y Puesta al Día para la Adecuación Municipal a la Ley N° 21.719 de Protección de Datos Personales.
+        </div>
+
+        <h2>1. Objetivos del Servicio</h2>
+        <p>Prestar asistencia técnica y jurídica integral para levantar las brechas de cumplimiento, estructurar la gobernanza comunal, diseñar el Registro de Actividades de Tratamiento (RAT) y redactar los actos administrativos exigidos antes de la entrada en vigencia de la Ley N° 21.719.</p>
+
+        <h2>2. Productos y Entregables Formales</h2>
+        <table>
+          <tr><th>N°</th><th>Entregable Requerido</th><th>Plazo Estimado</th></tr>
+          <tr><td>1</td><td>Informe Ejecutivo de Diagnóstico de Brechas por Dirección Municipal</td><td>Día 10</td></tr>
+          <tr><td>2</td><td>Matriz RAT de Tratamientos por Direcciones (Salud, Social, Tránsito, TI, DAF)</td><td>Día 20</td></tr>
+          <tr><td>3</td><td>Paquete de Decretos Alcaldicios (Designación DPO y Comité de Privacidad)</td><td>Día 25</td></tr>
+          <tr><td>4</td><td>Cláusulas Contractuales de Encargado (DPA) para Contratos de Software en Mercado Público</td><td>Día 27</td></tr>
+          <tr><td>5</td><td>Taller de Capacitación en Deber de Secreto para Funcionarios y Directores</td><td>Día 30</td></tr>
+        </table>
+
+        <h2>3. Presupuesto Referencial</h2>
+        <p>Monto referencial: <strong>28 a 30 UTM (~$1.900.000 a $2.000.000 CLP)</strong>, exento de IVA por servicios profesionales.</p>
+
+        <h2>4. Consultor de Referencia Técnica</h2>
+        <p>Profesional especializado: <strong>Eduardo Vega Toledo</strong> (Consultor en Gestión Pública, Universidad de Chile · Contacto: <code>evegat@uchile.cl</code>).</p>
+
+        <div class='footer'>
+          Documento generado mediante ProtegeDatosLocal · Eduardo Vega Toledo
+        </div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff' + wordHtml], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `TDR_Compra_Agil_Ley21719_${municipio.replace(/\s+/g, '_')}.doc`;
     a.click();
   };
 
@@ -345,12 +454,12 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Cargo / Dirección: <span className="text-red-500">*</span>
+                  Cargo / Función Específica: <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ej: Asesoría Jurídica / SECPLA"
+                  placeholder="Ej: Asesoría Jurídica / DIDECO / Concejal"
                   value={cargo}
                   onChange={(e) => setCargo(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
@@ -359,7 +468,7 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Correo Institucional: <span className="text-red-500">*</span>
+                  Correo Institucional o de Contacto: <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -372,23 +481,41 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                Área o Enfoque del Diagnóstico:
-              </label>
-              <select
-                value={departamento}
-                onChange={(e) => setDepartamento(e.target.value as MunicipalDepartment)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
-              >
-                <option value="ALCALDIA_JURIDICO">Evaluación Transversal (Todas las Direcciones)</option>
-                <option value="SECPLA_TI">TI, Informática y SECPLA</option>
-                <option value="SALUD_CESFAM">Salud Comunal (CESFAM / APS)</option>
-                <option value="DIDECO_SOCIAL">DIDECO y Programas Sociales (RSH)</option>
-                <option value="SEGURIDAD_PUBLICA">Seguridad Pública y Videovigilancia</option>
-                <option value="DAF_ADQUISICIONES">Compras Públicas y DAF</option>
-                <option value="OIRS_TRANSPARENCIA">OIRS y Transparencia</option>
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Su Rol / Estamento Institucional:
+                </label>
+                <select
+                  value={rolEstamento}
+                  onChange={(e) => setRolEstamento(e.target.value as UserRoleCategory)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600 font-semibold"
+                >
+                  <option value="DIRECTIVO">👔 Equipo Directivo / Jefatura (Alcalde, Adm, Jurídico, Directores)</option>
+                  <option value="CONCEJAL">⚖️ Concejal / Concejalía (Fiscalización en Concejo Municipal)</option>
+                  <option value="FUNCIONARIO_OPERATIVO">👥 Funcionario Operativo / Profesional de Área (DIDECO, Salud, TI)</option>
+                  <option value="CONSULTOR_EXTERNO">🤝 Asesor Externo / Consultor Municipal</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Área o Enfoque del Diagnóstico:
+                </label>
+                <select
+                  value={departamento}
+                  onChange={(e) => setDepartamento(e.target.value as MunicipalDepartment)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-600"
+                >
+                  <option value="ALCALDIA_JURIDICO">Evaluación Transversal (Todas las Direcciones)</option>
+                  <option value="SECPLA_TI">TI, Informática y SECPLA</option>
+                  <option value="SALUD_CESFAM">Salud Comunal (CESFAM / APS)</option>
+                  <option value="DIDECO_SOCIAL">DIDECO y Programas Sociales (RSH)</option>
+                  <option value="SEGURIDAD_PUBLICA">Seguridad Pública y Videovigilancia</option>
+                  <option value="DAF_ADQUISICIONES">Compras Públicas y DAF</option>
+                  <option value="OIRS_TRANSPARENCIA">OIRS y Transparencia</option>
+                </select>
+              </div>
             </div>
 
             <div className="pt-2">
@@ -524,28 +651,32 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
           {/* Header Summary Card */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-1">
-              Resultado Oficial de la Evaluación
+              {reportHeaderTitle} · Ley N° 21.719
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white mb-1">
               {municipio}
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-              Solicitado por: <strong>{nombre}</strong> ({cargo}) · Preparación Ley N° 21.719
+              Declarado por: <strong>{nombre}</strong> ({cargo} · {rolEstamento === 'CONCEJAL' ? 'Concejalía' : rolEstamento === 'FUNCIONARIO_OPERATIVO' ? 'Estamento Operativo' : 'Equipo Directivo'})
             </p>
 
-            {/* 3 Main Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+            {/* 4 Main Highlights */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto mb-8">
               <div className="p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900">
                 <div className="text-3xl font-black text-blue-700 dark:text-blue-300">{finalScore}%</div>
-                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 mt-1">Índice IMM Global</div>
+                <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300 mt-1">Índice IMM Global</div>
               </div>
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <div className="text-xl font-black text-slate-900 dark:text-white">{maturityLabels[maturityLevel].split('·')[0]}</div>
-                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 mt-1">{maturityLabels[maturityLevel].split('·')[1]}</div>
+                <div className="text-lg font-black text-slate-900 dark:text-white">{maturityLabels[maturityLevel].split('·')[0]}</div>
+                <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300 mt-1">{maturityLabels[maturityLevel].split('·')[1]}</div>
               </div>
               <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/60 border border-red-100 dark:border-red-900">
                 <div className="text-3xl font-black text-red-700 dark:text-red-300">{criticalGaps.length}</div>
-                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 mt-1">Brechas Críticas</div>
+                <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300 mt-1">Brechas Críticas</div>
+              </div>
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900">
+                <div className="text-3xl font-black text-amber-700 dark:text-amber-300">{unknownGaps.length}</div>
+                <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300 mt-1">Por Levantar / Inducción</div>
               </div>
             </div>
 
@@ -555,14 +686,47 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
             </div>
           </div>
 
+          {/* ALERTA PEDAGÓGICA DE BRECHAS POR DESCONOCIMIENTO */}
+          {unknownGaps.length > 0 && (
+            <div className="bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 rounded-3xl p-6 sm:p-8 text-left shadow-xs">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl shrink-0">💡</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-bold text-amber-950 dark:text-amber-200">
+                      Diagnóstico de Conocimiento Institucional ({unknownGaps.length} materias por levantar)
+                    </h3>
+                    <span className="bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 text-[10px] font-extrabold px-2 py-0.5 rounded">
+                      Brecha Formativa
+                    </span>
+                  </div>
+                  <p className="text-xs text-amber-900/90 dark:text-amber-300 mt-1.5 leading-relaxed">
+                    Se detectó que el estamento declarante desconoce el estado de {unknownGaps.length} controles normativos clave. En la gestión pública municipal, esto <strong>no constituye una falta dolosa</strong>, sino una <strong>brecha de inducción y sensibilización sobre la Ley N° 21.719</strong>.
+                  </p>
+                  <div className="mt-3 p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl border border-amber-200 dark:border-amber-900 text-xs text-slate-700 dark:text-slate-300 flex flex-wrap items-center justify-between gap-3">
+                    <span>
+                      🎯 <strong>Recomendación Prioritaria:</strong> Iniciar con una <strong>Jornada de Capacitación y Levantamiento Asistido</strong> para directores y funcionarios antes de emitir decretos o contratar software.
+                    </span>
+                    <button
+                      onClick={() => setIsContactModalOpen(true)}
+                      className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition cursor-pointer"
+                    >
+                      Consultar por Taller de Capacitación →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* LEAD CAPTURE: ENVIAR INFORME DIRECTO A CORREO */}
           <div className="bg-gradient-to-br from-[#0A2540] to-blue-900 text-white rounded-3xl p-8 shadow-md border border-blue-800">
             <div className="max-w-2xl mx-auto text-center">
               <span className="text-xs font-bold uppercase tracking-wider text-blue-300 block mb-1">
-                📨 Entregable Formal para el Concejo Municipal
+                📨 Entregable Formal Personalizado
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white mb-2">
-                Reciba el Informe Ejecutivo Completo en su Correo
+                Reciba el {reportHeaderTitle} en su Correo
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
                 Le enviaremos el reporte oficial de <strong>{municipio}</strong> con el plan de 90 días y las Bases Técnicas (TDR) para contratación mediante <strong>Honorarios a Suma Alzada (Art. 4° Ley N° 18.883)</strong> o <strong>Mercado Público (&lt; 30 UTM)</strong>.
@@ -621,7 +785,6 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
             </div>
           )}
 
-          
           {/* SECCIÓN DE CONSECUENCIAS LEGALES Y AFECTACIÓN INSTITUCIONAL */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Tarjeta 1: Consecuencias del Incumplimiento */}
@@ -693,8 +856,6 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
             </div>
           </div>
 
-
-          
           {/* DISCLAIMER Y DESLINDE DE RESPONSABILIDAD METODOLÓGICA */}
           <div className="bg-slate-50 dark:bg-slate-900/80 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             <div className="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 text-xs mb-1.5">
@@ -705,22 +866,28 @@ export const QuestionnaireWizard: React.FC<WizardProps> = ({ initialDepartment }
             </p>
           </div>
 
-
-          {/* Action Buttons: Print Council Report + Download TDR */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+          {/* Action Buttons: Print Report + Download TDRs (HSA & Compra Ágil) */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-6 py-3.5 bg-[#0A2540] dark:bg-blue-600 hover:bg-blue-600 text-white font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition"
+              className="px-5 py-3.5 bg-[#0A2540] dark:bg-blue-600 hover:bg-blue-600 text-white font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition"
             >
-              <span>🖨️ Imprimir Informe para el Concejo (PDF)</span>
+              <span>🖨️ Imprimir {reportHeaderTitle.split('(')[0]} (PDF)</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadWordHSA}
+              className="px-5 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition"
+            >
+              <span>📥 Descargar TDR Honorarios Suma Alzada (.doc)</span>
             </button>
             <button
               type="button"
               onClick={handleDownloadWordTDR}
-              className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition hover:bg-slate-50"
+              className="px-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl shadow-xs text-xs flex items-center gap-2 cursor-pointer transition hover:bg-slate-50"
             >
-              <span>📥 Descargar TDR en Word (.doc)</span>
+              <span>📥 Descargar TDR Compra Ágil (.doc)</span>
             </button>
             <button
               type="button"

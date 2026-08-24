@@ -217,6 +217,47 @@ Profesional con experiencia acreditada en gestión pública, derecho de la infor
 
 4. PLAZO DE EJECUCIÓN:
 30 a 60 días corridos contados desde la emisión de la Orden de Compra.`
+  },
+  {
+    id: 'kit-07',
+    code: 'KIT-07',
+    title: 'Términos de Referencia: Honorarios a Suma Alzada (Art. 4° Ley 18.883)',
+    subtitle: 'Bases técnicas para Decreto Alcaldicio de Honorarios por Cometido Específico con valorización presupuestaria desglosada.',
+    targetRole: 'Alcaldía / Administrador Municipal / Jurídico / DAF',
+    legalBasis: 'Artículo 4° de la Ley N° 18.883 (Estatuto Administrativo Municipal) / Ley N° 21.719',
+    template: (v) => `TÉRMINOS DE REFERENCIA (TDR)
+CONTRATACIÓN A HONORARIOS A SUMA ALZADA POR COMETIDO ESPECÍFICO (ART. 4° LEY N° 18.883)
+ILUSTRE MUNICIPALIDAD DE ${cleanMuni(v.municipio).toUpperCase()}
+
+1. ANTECEDENTES Y SUSTENTO JURÍDICO (DICTÁMENES CGR):
+Conforme al Artículo 4° de la Ley N° 18.883, las municipalidades se encuentran facultadas para contratar sobre la base de honorarios a profesionales y expertos cuando deban realizarse labores accidentales y que no sean las habituales de la municipalidad.
+La publicación y perentoria entrada en vigencia de la Ley N° 21.719 de Protección de Datos Personales (al 1 de diciembre de 2026) constituye una exigencia normativa extraordinaria y transitoria de adecuación de procesos, gobernanza y reglamentos, configurando la justificación jurídica exigida por la Contraloría General de la República para la emisión de un Decreto Alcaldicio a Honorarios a Suma Alzada.
+
+2. NOMBRE DEL COMETIDO:
+"Servicio Profesional Especializado para la Puesta al Día, Diagnóstico de Madurez y Adecuación Institucional de la I. Municipalidad de ${cleanMuni(v.municipio)} a las Exigencias de la Ley N° 21.719 de Protección de Datos Personales".
+
+3. PRODUCTOS Y ENTREGABLES OBLIGATORIOS (5 PRODUCTOS FORMALES):
+- Producto 1: Informe Ejecutivo de Diagnóstico de Madurez y Mapa de Brechas ante APDP y CGR.
+- Producto 2: Registro de Actividades de Tratamiento (RAT Municipal) en formato estructurado (XLSX).
+- Producto 3: Set de Decretos Alcaldicios Tipo (Nombramiento DPO, Comité de Privacidad y Política Comunal).
+- Producto 4: Modelo de Anexo DPA para Licitaciones y Contratos de Software en Mercado Público.
+- Producto 5: Taller de Transferencia Técnica y Capacitación a Directores y Funcionarios (3 hrs cronológicas).
+
+4. PLAZO DE EJECUCIÓN:
+30 días corridos contados desde la notificación formal del Decreto Alcaldicio que aprueba el contrato.
+
+5. VALORIZACIÓN PRESUPUESTARIA Y CALENDARIO DE PAGOS:
+El monto total convenido a honorarios a suma alzada asciende a la suma única y total de 28 UTM (aproximadamente $1.900.000 CLP bruto), pagadero en 3 hitos contra informe de conformidad técnica emitido por la Contraparte Municipal (Administrador Municipal o Director Jurídico):
+
+• HITO 1 (30% del total - ~$570.000 CLP): Contra aprobación del Plan de Trabajo y Cronograma de Entrevistas Interdepartamentales, junto al Informe Preliminar de Brechas.
+• HITO 2 (40% del total - ~$760.000 CLP): Contra entrega conforme de la Matriz RAT Municipal y los Borradores de Decretos Alcaldicios y Cláusulas DPA para Mercado Público.
+• HITO 3 (30% del total - ~$570.000 CLP): Contra ejecución de la Jornada de Capacitación a Funcionarios y entrega del Informe Final de Resultados Visado.
+
+6. CONTRAPARTE TÉCNICA MUNICIPAL:
+El/La Administrador/a Municipal o el/la Director/a de la Dirección Jurídica de la I. Municipalidad de ${cleanMuni(v.municipio)}.
+
+7. PERSONERÍA DEL PRESTADOR:
+Eduardo Vega Toledo (o Consultor Adjudicado), Abogado / Administrador Público / Especialista en Gobernanza de Datos y Gestión Municipal.`
   }
 ];
 

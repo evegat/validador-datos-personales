@@ -79,6 +79,12 @@ export interface Question {
   conditionalCategory?: 'SALUD_CESFAM' | 'SEGURIDAD_CAMARAS' | 'SOFTWARE_TERCERIZADO' | 'DIDECO_INFANCIA';
 }
 
+export type UserRoleCategory = 
+  | 'DIRECTIVO'
+  | 'CONCEJAL'
+  | 'FUNCIONARIO_OPERATIVO'
+  | 'CONSULTOR_EXTERNO';
+
 export interface MunicipalProfile {
   municipalityName: string;
   region: string;
@@ -91,6 +97,8 @@ export interface MunicipalProfile {
   respondentName: string;
   respondentRole: string;
   respondentEmail: string;
+  roleCategory?: UserRoleCategory;
+  campaignSource?: string;
 }
 
 export interface QuestionAnswer {

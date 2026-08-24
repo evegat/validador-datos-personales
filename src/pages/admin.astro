@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { AdminDashboard } from '../components/AdminDashboard';
+---
+
+<Layout
+  title="Panel de Control & Leads Municipales | ProtegeDatosLocal"
+  description="Portal administrativo privado de prospección y seguimiento municipal para Eduardo Vega Toledo."
+>
+  <div class="py-4">
+    <AdminDashboard client:load />
+  </div>
+</Layout>
