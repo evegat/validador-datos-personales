@@ -200,9 +200,16 @@ def validate_artifact(path: Path, kind: str) -> dict[str, Any]:
     try:
         import jsonschema  # type: ignore
 
-        data = json_load(path)
-        jsonschema.Draft202012Validator(json_load(schema), format_checker=jsonschema.FormatChecker()).validate(data)
-        checks = [result(f"validate.{kind}", "pass", f"{path.name} válido")]
+        validator = jsonschema.Draft202012Validator(json_load(schema), format_checker=jsonschema.FormatChecker())
+        if kind == "pending" and path.suffix.lower() == ".ndjson":
+            records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            for record in records:
+                validator.validate(record)
+            detail = f"{path.name}: {len(records)} registro(s) válidos"
+        else:
+            validator.validate(json_load(path))
+            detail = f"{path.name} válido"
+        checks = [result(f"validate.{kind}", "pass", detail)]
         return report("validate", None, checks)
     except ImportError:
         return report("validate", None, [], "jsonschema no está instalado")
