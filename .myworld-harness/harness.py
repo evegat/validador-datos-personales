@@ -343,7 +343,7 @@ def security(repo: Path, staged: bool = False, no_external: bool = False) -> dic
         checks.append(result(f"security.tool.{tool}", "pass" if available else ("fail" if blocking_tools else "pending"), version))
         if available and not staged and executable:
             if tool == "gitleaks":
-                command = f'"{executable}" dir --no-banner --redact --exit-code 1 .'
+                command = f'"{executable}" git --no-banner --redact --exit-code 1 .'
             else:
                 command = f'"{executable}" fs --scanners vuln,misconfig --severity HIGH,CRITICAL --exit-code 1 --no-progress --skip-dirs node_modules --skip-dirs .git .'
             code, output = run_shell(command, repo, timeout=1200)
@@ -446,7 +446,7 @@ jobs:
       - name: Built-in secret scanner
         run: python .myworld-harness/harness.py security --no-external
       - name: Gitleaks 8.30.1
-        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 dir /repo --no-banner --redact --exit-code 1
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 git /repo --no-banner --redact --exit-code 1
       - name: Trivy 0.74.0
         run: docker run --rm -v "$PWD:/repo" aquasec/trivy:0.74.0 fs --scanners vuln,misconfig --severity HIGH,CRITICAL --exit-code 1 --no-progress --skip-dirs node_modules --skip-dirs .git /repo
 """
