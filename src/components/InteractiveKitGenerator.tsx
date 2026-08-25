@@ -247,17 +247,92 @@ La publicación y perentoria entrada en vigencia de la Ley N° 21.719 de Protecc
 30 días corridos contados desde la notificación formal del Decreto Alcaldicio que aprueba el contrato.
 
 5. VALORIZACIÓN PRESUPUESTARIA Y CALENDARIO DE PAGOS:
-El monto total convenido a honorarios a suma alzada asciende a la suma única y total de 28 UTM (aproximadamente $1.900.000 CLP bruto), pagadero en 3 hitos contra informe de conformidad técnica emitido por la Contraparte Municipal (Administrador Municipal o Director Jurídico):
+El monto total convenido a honorarios a suma alzada asciende a la suma única y total de 65 UTM (aproximadamente $4.400.000 CLP bruto), pagadero en 3 hitos contra informe de conformidad técnica emitido por la Contraparte Municipal (Administrador Municipal o Director Jurídico):
 
-• HITO 1 (30% del total - ~$570.000 CLP): Contra aprobación del Plan de Trabajo y Cronograma de Entrevistas Interdepartamentales, junto al Informe Preliminar de Brechas.
-• HITO 2 (40% del total - ~$760.000 CLP): Contra entrega conforme de la Matriz RAT Municipal y los Borradores de Decretos Alcaldicios y Cláusulas DPA para Mercado Público.
-• HITO 3 (30% del total - ~$570.000 CLP): Contra ejecución de la Jornada de Capacitación a Funcionarios y entrega del Informe Final de Resultados Visado.
+• HITO 1 (30% del total - ~$1.320.000 CLP): Contra aprobación del Plan de Trabajo y Cronograma de Entrevistas Interdepartamentales, junto al Informe Preliminar de Brechas.
+• HITO 2 (40% del total - ~$1.760.000 CLP): Contra entrega conforme de la Matriz RAT Municipal y los Borradores de Decretos Alcaldicios y Cláusulas DPA para Mercado Público.
+• HITO 3 (30% del total - ~$1.320.000 CLP): Contra ejecución de la Jornada de Capacitación a Funcionarios y entrega del Informe Final de Resultados Visado.
 
 6. CONTRAPARTE TÉCNICA MUNICIPAL:
 El/La Administrador/a Municipal o el/la Director/a de la Dirección Jurídica de la I. Municipalidad de ${cleanMuni(v.municipio)}.
 
 7. PERSONERÍA DEL PRESTADOR:
-Eduardo Vega Toledo (o Consultor Adjudicado), Abogado / Administrador Público / Especialista en Gobernanza de Datos y Gestión Municipal.`
+Eduardo Vega Toledo (o Consultor Adjudicado), Consultor en Gestión Pública / Universidad de Chile / Especialista en Gobernanza de Datos y Gestión Municipal.`
+  },
+  {
+    id: 'kit-08',
+    code: 'KIT-08',
+    title: 'Convenio de Deber de Secreto y Confidencialidad Funcional (DIDECO / RSH)',
+    type: 'DOCX Visado',
+    target: 'DIDECO / Jurídico / RRHH',
+    legal: 'Art. 7 y 16 bis Ley N° 21.719 / Ley N° 20.379 (RSH) / Dictámenes CGR',
+    template: (v) => `CONVENIO INDIVIDUAL DE CONFIDENCIALIDAD, DEBER DE RESERVA Y TRATAMIENTO DE DATOS SENSIBLES
+(REGISTRO SOCIAL DE HOGARES Y PROGRAMAS DIDECO)
+
+ILUSTRE MUNICIPALIDAD DE ${cleanMuni(v.municipio).toUpperCase()}
+
+En ${v.comuna}, a ${v.fecha}, entre la I. Municipalidad de ${cleanMuni(v.municipio)} y el/la funcionario/a o prestador/a de servicios:
+NOMBRE: ${v.dpoNombre || 'Don/Doña ________________________'}
+RUT: ${v.dpoRut || '______________'}
+CARGO / FUNCIÓN: ${v.dpoDireccion || 'Profesional DIDECO / Asistente Social'}
+
+PRIMERO: DECLARACIÓN DE ACCESO A DATOS SENSIBLES
+El/La compareciente declara que, en el marco de sus funciones en la Dirección de Desarrollo Comunitario (DIDECO), tiene acceso a información protegida del Registro Social de Hogares (RSH), subsidios sociales, programas de infancia (OLN) y materias de vulnerabilidad socioeconómica familiar, los cuales revisten la calidad jurídica de DATOS SENSIBLES conforme al Artículo 16 bis de la Ley N° 21.719 y la Ley N° 20.379.
+
+SEGUNDO: OBLIGACIONES Y PROHIBICIONES EXPRESAS
+El/La firmante se compromete de manera irrevocable a:
+1. Tratar los antecedentes socioeconómicos exclusivamente para la tramitación de beneficios comunales autorizados por ley.
+2. Abstenerse de exportar, descargar en planillas Excel locales o transferir listados con RUT o domicilios a computadores particulares o pendrives no cifrados.
+3. Prohibición absoluta de compartir datos de beneficiarios a través de aplicaciones de mensajería instantánea (WhatsApp, Telegram) o correos electrónicos personales.
+4. Abstenerse estrictamente de entregar nóminas nominativas con puntajes RSH a concejales o dirigentes vecinales, conforme a la jurisprudencia vinculante de la Contraloría General de la República (Dictámenes D224N26 y OF95047N26).
+
+TERCERO: VIGENCIA PERMANENTE DEL DEBER DE SECRETO
+El deber de reserva y secreto profesional consagrado en el Artículo 7° de la Ley N° 21.719 es de carácter PERMANENTE y no se extingue por el cese de funciones, renuncia o término del contrato con el municipio.
+
+CUARTO: RESPONSABILIDADES LEGALES CONCURRENTES
+El incumplimiento de este convenio configurará falta grave al principio de probidad administrativa, dando lugar a sumario administrativo instruido por la Contraloría General de la República con sanción de DESTITUCIÓN (Ley 18.883), sin perjuicio de las responsabilidades civiles indemnizatorias y penales por violación de secretos (Artículos 246 y 247 del Código Penal).
+
+Firmado en dos ejemplares:
+
+_____________________________            _____________________________
+Firma Funcionario / Prestador              Director/a DIDECO / Jurídico`
+  },
+  {
+    id: 'kit-09',
+    code: 'KIT-09',
+    title: 'Pauta de Resguardo y Auditoría Clínica para Salud Municipal (CESFAM / APS)',
+    type: 'DOCX Visado',
+    target: 'Dirección de Salud (DISAM) / CESFAM',
+    legal: 'Ley N° 20.584 / Art. 16 bis Ley N° 21.719 / Dictamen CGR N° 8.113/2020',
+    template: (v) => `PAUTA OPERATIVA Y CHECKLIST DE RESGUARDO DE DATOS CLÍNICOS
+CENTROS DE SALUD FAMILIAR (CESFAM / CECOSF / SAPU / COSAM)
+I. MUNICIPALIDAD DE ${cleanMuni(v.municipio).toUpperCase()}
+
+1. DISPOSICIONES GENERALES SOBRE LA FICHA CLÍNICA ELECTRÓNICA:
+Conforme a la Ley N° 20.584 de Derechos y Deberes de los Pacientes y el Artículo 16 bis letra e) de la Ley N° 21.719, los datos de salud, diagnósticos CIE-10 y tratamientos médicos son datos sensibles con reserva legal reforzada.
+
+2. CHECKLIST DE CUMPLIMIENTO OPERATIVO TRIMESTRAL:
+
+[ ] CONTROL DE ACCESO BASADO EN ROLES (RBAC):
+    - Médicos y Odontólogos: Acceso completo a la ficha del paciente en atención.
+    - Enfermeros y Matronas: Acceso a módulos de enfermería y controles.
+    - Personal de Admisión (SOME): Acceso limitado a datos demográficos y citaciones. PROHIBIDO el acceso a diagnósticos médicos y notas clínicas.
+
+[ ] SEGURIDAD EN ESTACIONES DE TRABAJO (SOME Y BOX MÉDICO):
+    - Bloqueo automático de pantalla tras 3 minutos de inactividad.
+    - Prohibición de compartir claves personales de acceso al software clínico (Rayén/Omesh).
+    - Prohibición de exportar listados de pacientes con patologías a planillas Excel sin anonimizar.
+
+[ ] PROTOCOLO ANTE REQUERIMIENTOS EXTERNOS:
+    - Requerimientos de Tribunales y Fiscalía: Solo se entregan copias de fichas clínicas mediante oficio formal firmado por el Director del CESFAM o Asesor Jurídico.
+    - Autoridades Municipales (Alcaldes, Concejales): Se reitera el Dictamen CGR N° 8.113/2020: "Las autoridades municipales carecen de atribuciones para acceder a nóminas de pacientes con diagnósticos o patologías específicas".
+
+[ ] CONTROL BIOMÉTRICO DE ASISTENCIA FUNCIONARIA:
+    - Se debe ofrecer siempre un mecanismo alternativo no biométrico (tarjeta/código) para funcionarios que no consientan el enrolamiento de huella o rostro (Art. 16 ter Ley 21.719).
+
+3. REGISTRO DE VERIFICACIÓN:
+Fecha de Auditoría: ${v.fecha}
+Director/a CESFAM / Encargado/a de Calidad: ___________________________`
   }
 ];
 

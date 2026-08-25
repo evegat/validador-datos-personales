@@ -103,15 +103,15 @@ export const ACTIONABLE_KITS: TemplateKit[] = [
   {
     id: 'kit-tdr-compra-agil',
     code: 'KIT-06',
-    title: 'Términos de Referencia Oficiales: Contratación en Mercado Público de Puesta al Día',
-    subtitle: 'Documento administrativo listo para subir a Mercado Público y contratar consultoría',
+    title: 'Términos de Referencia Oficiales: Compra Ágil en Mercado Público (< 100 UTM)',
+    subtitle: 'Bases técnicas simplificadas listas para subir a Mercado Público y contratar consultoría en 48 horas',
     targetRole: 'Administrador Municipal / SECPLA / Jurídico / DAF',
     effortToImplement: 'Subir a Mercado Público en 15 minutos',
-    legalBasis: 'Art. 10 bis D.S. N° 250 de Hacienda y Ley N° 19.886',
+    legalBasis: 'Ley N° 19.886 y Ley N° 21.634 (Nueva Ley de Compras Públicas < 100 UTM)',
     fileFormat: 'DOCX Visado',
-    description: 'Bases y Términos de Referencia (TDR) prediseñados para que el municipio pueda contratar mediante Compra Ágil (mediante los mecanismos de contratación aplicables) el servicio de acompañamiento profesional, levantamiento del RAT, redacción de decretos y capacitación funcionaria sin requerir licitaciones públicas de largo plazo.',
+    description: 'Bases y Términos de Referencia (TDR) prediseñados para que el municipio pueda contratar mediante Compra Ágil (hasta 100 UTM / ~$6.800.000 CLP) el servicio integral de puesta al día, levantamiento del RAT, redacción de decretos y capacitación funcionaria con prioridad legal para Empresas de Menor Tamaño (EMT).',
     structurePreview: [
-      'Definición del requerimiento bajo modalidad Contratación en Mercado Público',
+      'Definición del requerimiento bajo modalidad Compra Ágil (< 100 UTM)',
       'Detalle de los 5 entregables contractuales obligatorios para recepción conforme',
       'Plazo de ejecución perentorio de 30 días corridos',
       'Perfil y requisitos de idoneidad del consultor especializado',
@@ -121,19 +121,53 @@ export const ACTIONABLE_KITS: TemplateKit[] = [
   {
     id: 'kit-tdr-honorarios-hsa',
     code: 'KIT-07',
-    title: 'Términos de Referencia: Contratación a Honorarios a Suma Alzada (HSA)',
+    title: 'Términos de Referencia: Contratación a Honorarios a Suma Alzada (Art. 4° Ley 18.883)',
     subtitle: 'Bases técnicas para Decreto Alcaldicio de Honorarios por Cometido Específico con valorización desglosada',
     targetRole: 'Alcaldía / Administrador Municipal / Jurídico / DAF',
     effortToImplement: 'Listo para visación jurídica y Decreto Alcaldicio',
     legalBasis: 'Artículo 4° de la Ley N° 18.883 (Estatuto Administrativo Municipal) / Ley N° 21.719',
     fileFormat: 'DOCX Visado',
-    description: 'Términos de referencia formalizados para contratar la consultoría experta de puesta al día mediante honorarios a suma alzada. Incluye fundamentación jurídica CGR sobre cometido accidental no habitual y calendario de pagos valorizado en 3 hitos (28 UTM / ~$1.900.000 CLP bruto).',
+    description: 'Términos de referencia formalizados para contratar la consultoría experta de puesta al día mediante honorarios a suma alzada. Incluye fundamentación jurídica CGR sobre cometido accidental no habitual y calendario de pagos valorizado en 3 hitos (65 UTM / ~$4.400.000 CLP bruto).',
     structurePreview: [
-      'Justificación jurídica del cometido accidental y transitorio (Ley 21.719)',
+      'Justificación jurídica del cometido accidental y transitorio (Ley 21.719 / CGR)',
       'Objetivos, alcance en 30 días y 5 productos entregables',
-      'Valorización presupuestaria: 28 UTM (~$1.900.000 CLP bruto)',
+      'Valorización presupuestaria: 65 UTM (~$4.400.000 CLP bruto)',
       'Calendario de 3 hitos de pago contra informe de conformidad técnica (30% / 40% / 30%)',
       'Cláusula de confidencialidad, propiedad intelectual y entrega en formatos abiertos'
+    ]
+  },
+  {
+    id: 'kit-convenio-secreto-rsh',
+    code: 'KIT-08',
+    title: 'Convenio de Deber de Secreto y Confidencialidad Funcional (DIDECO / RSH)',
+    subtitle: 'Acuerdo individual obligatorio de reserva legal para personal con acceso a datos sociales sensibles',
+    targetRole: 'DIDECO / Jurídico / Recursos Humanos',
+    effortToImplement: 'Firma individual de funcionarios y personal a honorarios',
+    legalBasis: 'Art. 7 y 16 bis Ley N° 21.719 / Ley N° 20.379 (RSH) / Dictámenes CGR D224N26',
+    fileFormat: 'DOCX Visado',
+    description: 'Convenio de confidencialidad estricta para asistentes sociales y personal administrativo que trata fichas del Registro Social de Hogares (RSH), subsidios y programas de infancia (OLN). Prohíbe la divulgación por WhatsApp, exportación a pendrives y traspaso a concejales sin habilitación legal.',
+    structurePreview: [
+      'Reconocimiento expreso de la naturaleza sensible de la información socioeconómica',
+      'Catálogo de 5 prohibiciones específicas (WhatsApp, capturas, descargas en Excel local)',
+      'Deber de reserva permanente e indefinido tras el cese de funciones',
+      'Régimen de sanciones concurrentes (Sumario CGR, Destitución y Responsabilidad Civil/Penal)'
+    ]
+  },
+  {
+    id: 'kit-pauta-auditoria-cesfam',
+    code: 'KIT-09',
+    title: 'Pauta de Resguardo y Auditoría Clínica para Salud Municipal (CESFAM / APS)',
+    subtitle: 'Checklist operativo para directores de salud comunal sobre ficha clínica y sistemas HIS',
+    targetRole: 'Dirección de Salud (DISAM) / Directores de CESFAM / Informática Salud',
+    effortToImplement: 'Checklist trimestral de verificación interna',
+    legalBasis: 'Ley N° 20.584 / Art. 16 bis Ley N° 21.719 / Dictamen CGR N° 8.113/2020',
+    fileFormat: 'DOCX Visado',
+    description: 'Guía técnica y checklist de control de acceso para la ficha clínica electrónica (Rayén/Omesh/SIS-Salud), SOME y farmacia comunal. Asegura control de roles RBAC, trazabilidad de logs, prohibición de entrega de diagnósticos a autoridades comunales y regulación de biometría.',
+    structurePreview: [
+      'Matriz de control de acceso por roles clínicos (médico, enfermero, SOME, TENS)',
+      'Protocolo de entrega de antecedentes a tribunales y fiscalía',
+      'Checklist de contratos SaaS con proveedores de software médico (DPA y residencia de datos)',
+      'Normativa de control de asistencia con alternativa no biométrica obligatoria'
     ]
   }
 ];
