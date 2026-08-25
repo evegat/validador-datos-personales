@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "product_id": "P087",
+  "name": "Validador Ley de Datos Personales Municipal",
+  "owner": "Eduardo Vega",
+  "myworld_project": "P087",
+  "kind": "web_app",
+  "lifecycle_stage": "production",
+  "risk": "high",
+  "data_classification": [
+    "public",
+    "personal"
+  ],
+  "deployment": {
+    "state": "public",
+    "production_urls": [
+      "https://aliceblue-dogfish-345779.hostingersite.com",
+      "https://protegedatoslocal.inncivica.cloud"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "default_branch": "main",
+    "remote_policy": "pending"
+  },
+  "commands": {
+    "quality": [
+      "npm run build"
+    ],
+    "build": [],
+    "test": []
+  },
+  "critical_paths": [
+    "src",
+    "public",
+    "package.json"
+  ],
+  "forbidden_paths": [
+    ".env",
+    "credentials",
+    "lead-data",
+    "_backups"
+  ],
+  "multi_agent": {
+    "isolation": "worktree",
+    "integration_owner": "Eduardo Vega"
+  },
+  "observability": {
+    "level": 3,
+    "domains": [
+      "technical",
+      "pipeline",
+      "product",
+      "business"
+    ],
+    "monitors": [
+      {
+        "name": "P087 Hostinger raíz",
+        "type": "http",
+        "target": "https://aliceblue-dogfish-345779.hostingersite.com",
+        "interval_seconds": 300,
+        "failure_threshold": 3
+      },
+      {
+        "name": "P087 dominio raíz",
+        "type": "http",
+        "target": "https://protegedatoslocal.inncivica.cloud",
+        "interval_seconds": 300,
+        "failure_threshold": 3
+      },
+      {
+        "name": "P087 diagnóstico",
+        "type": "http",
+        "target": "https://protegedatoslocal.inncivica.cloud/diagnostico",
+        "interval_seconds": 300,
+        "failure_threshold": 3
+      },
+      {
+        "name": "P087 privacidad",
+        "type": "keyword",
+        "target": "https://protegedatoslocal.inncivica.cloud/privacidad",
+        "keyword": "privacidad",
+        "interval_seconds": 300,
+        "failure_threshold": 3
+      }
+    ]
+  },
+  "release": {
+    "backup_required": true,
+    "restore_test_required": true,
+    "rollback_required": true,
+    "rpo_hours": 24,
+    "rto_hours": 8
+  },
+  "evidence": {
+    "last_audit": null,
+    "pending_register": "MyWorld:harness/state/pending.ndjson"
+  }
+}
