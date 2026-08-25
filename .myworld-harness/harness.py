@@ -311,9 +311,12 @@ def tool_version(name: str) -> tuple[bool, str, str | None]:
     return code == 0, output.splitlines()[0] if output else executable, executable
 
 
-def security(repo: Path, staged: bool = False) -> dict[str, Any]:
+def security(repo: Path, staged: bool = False, no_external: bool = False) -> dict[str, Any]:
     checks = validate_profile(repo) + secret_scan(repo, staged)
     profile = load_profile(repo)
+    if no_external:
+        checks.append(result("security.external", "not_applicable", "Scanners externos delegados al runner"))
+        return report("security", repo, checks)
     blocking_tools = profile["risk"] in {"high", "critical"} and profile["deployment"]["state"] == "public"
     for tool in ("gitleaks", "trivy"):
         available, version, executable = tool_version(tool)
@@ -397,6 +400,36 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$repo_root/.myworld-har
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$repo_root/.myworld-harness/harness.ps1" security
 exit $?
 """
+CI_WORKFLOW = """name: MyWorld Harness v1
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Activate repository hooks path
+        run: git config core.hooksPath .githooks
+      - name: Contract and adapter
+        run: python .myworld-harness/harness.py preflight
+      - name: Built-in secret scanner
+        run: python .myworld-harness/harness.py security --no-external
+      - name: Gitleaks 8.30.1
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 dir /repo --no-banner --redact --exit-code 1
+      - name: Trivy 0.74.0
+        run: docker run --rm -v "$PWD:/repo" aquasec/trivy:0.74.0 fs --scanners vuln,misconfig --severity HIGH,CRITICAL --exit-code 1 --no-progress --skip-dirs node_modules --skip-dirs .git /repo
+"""
 
 
 def write_if_changed(path: Path, content: str | bytes, dry_run: bool) -> bool:
@@ -451,6 +484,7 @@ def sync_repositories(dry_run: bool) -> dict[str, Any]:
         changes += write_if_changed(repo / ".myworld-harness" / "VERSION", VERSION + "\n", dry_run)
         changes += write_if_changed(repo / ".githooks" / "pre-commit", PRE_COMMIT, dry_run)
         changes += write_if_changed(repo / ".githooks" / "pre-push", PRE_PUSH, dry_run)
+        changes += write_if_changed(repo / ".github" / "workflows" / "myworld-harness.yml", CI_WORKFLOW, dry_run)
         changes += write_if_changed(repo / ".gitignore", ensure_gitignore(repo), dry_run)
         if (repo / ".git").exists() and not dry_run:
             git_output(repo, "config", "core.hooksPath", ".githooks")
@@ -527,6 +561,7 @@ def main(argv: list[str] | None = None) -> int:
         item.add_argument("--json", action="store_true")
         if name == "security":
             item.add_argument("--staged", action="store_true")
+            item.add_argument("--no-external", action="store_true")
     inv = sub.add_parser("inventory")
     inv.add_argument("--json", action="store_true")
     sync = sub.add_parser("sync")
@@ -555,7 +590,7 @@ def main(argv: list[str] | None = None) -> int:
             elif args.command == "quality":
                 payload = quality(repo)
             elif args.command == "security":
-                payload = security(repo, args.staged)
+                payload = security(repo, args.staged, args.no_external)
             elif args.command == "release":
                 payload = release_gate(repo)
             elif args.command == "postflight":
