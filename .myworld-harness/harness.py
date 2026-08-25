@@ -22,6 +22,13 @@ VERSION = "1.0.0"
 START_RE = re.compile(r"<!-- myworld-harness:start version=.*? -->.*?<!-- myworld-harness:end -->", re.DOTALL)
 IGNORED_DIRS = {".git", ".venv", "venv", "node_modules", "dist", "build", ".next", ".astro", "coverage", "DataCompleta", "data"}
 TEXT_SUFFIXES = {".py", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".json", ".yaml", ".yml", ".toml", ".ini", ".env", ".md", ".html", ".css", ".sql", ".ps1", ".sh", ".bat"}
+TRIVY_SUFFIXES = {".json", ".yaml", ".yml", ".toml", ".lock", ".tf", ".hcl"}
+TRIVY_NAMES = {
+    "dockerfile", "containerfile", "requirements.txt", "requirements-dev.txt",
+    "pipfile", "pipfile.lock", "poetry.lock", "pyproject.toml", "package.json",
+    "package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb",
+    "go.mod", "go.sum", "cargo.toml", "cargo.lock", "composer.json", "composer.lock",
+}
 SECRET_PATTERNS = {
     "private_key": re.compile(r"-----BEGIN [A-Z ]{1,40}PRIVATE KEY-----"),
     "provider_token": re.compile(r"(?:sk_live_|ghp_|github_pat_|AKIA)[A-Za-z0-9_-]{16,}"),
@@ -256,11 +263,43 @@ def executable_files(repo: Path, staged: bool) -> list[Path]:
             return []
         candidates = [repo / line for line in output.splitlines()]
     else:
-        candidates = []
-        for root, dirs, files in os.walk(repo):
-            dirs[:] = [item for item in dirs if item not in IGNORED_DIRS]
-            candidates.extend(Path(root) / name for name in files)
+        code, output = git_output(repo, "ls-files", "--cached", "--others", "--exclude-standard")
+        if code == 0:
+            candidates = [repo / line for line in output.splitlines()]
+        else:
+            candidates = []
+            for root, dirs, files in os.walk(repo):
+                dirs[:] = [item for item in dirs if item not in IGNORED_DIRS]
+                candidates.extend(Path(root) / name for name in files)
     return [path for path in candidates if path.exists() and path.is_file() and path.suffix.lower() in TEXT_SUFFIXES and path.stat().st_size <= 2_000_000]
+
+
+def trivy_files(repo: Path) -> list[Path]:
+    code, output = git_output(repo, "ls-files", "--cached", "--others", "--exclude-standard")
+    if code != 0:
+        return []
+    selected: list[Path] = []
+    for relative in output.splitlines():
+        path = repo / relative
+        lower_name = path.name.lower()
+        if not path.is_file() or path.stat().st_size > 10_000_000:
+            continue
+        if lower_name in TRIVY_NAMES or path.suffix.lower() in TRIVY_SUFFIXES or ".github/workflows/" in relative.replace("\\", "/"):
+            selected.append(path)
+    return selected
+
+
+def run_trivy(executable: str, repo: Path) -> tuple[int, str, int]:
+    files = trivy_files(repo)
+    with tempfile.TemporaryDirectory(prefix="myworld-harness-trivy-") as temp_name:
+        scan_root = Path(temp_name)
+        for source in files:
+            destination = scan_root / source.relative_to(repo)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+        command = f'"{executable}" fs --scanners vuln,misconfig --severity HIGH,CRITICAL --exit-code 1 --no-progress "{scan_root}"'
+        code, output = run_shell(command, repo, timeout=1200)
+    return code, output, len(files)
 
 
 def secret_scan(repo: Path, staged: bool = False) -> list[dict[str, Any]]:
@@ -344,10 +383,12 @@ def security(repo: Path, staged: bool = False, no_external: bool = False) -> dic
         if available and not staged and executable:
             if tool == "gitleaks":
                 command = f'"{executable}" git --no-banner --redact --exit-code 1 .'
+                code, output = run_shell(command, repo, timeout=1200)
+                scope = "historial Git"
             else:
-                command = f'"{executable}" fs --scanners vuln,misconfig --severity HIGH,CRITICAL --exit-code 1 --no-progress --skip-dirs node_modules --skip-dirs .git .'
-            code, output = run_shell(command, repo, timeout=1200)
-            checks.append(result(f"security.scan.{tool}", "pass" if code == 0 else "fail", f"exit={code}; hallazgos sensibles redactados", output=output))
+                code, output, file_count = run_trivy(executable, repo)
+                scope = f"{file_count} manifiesto(s) y archivo(s) de configuración elegibles"
+            checks.append(result(f"security.scan.{tool}", "pass" if code == 0 else "fail", f"exit={code}; alcance={scope}; hallazgos sensibles redactados", output=output))
     return report("security", repo, checks)
 
 
