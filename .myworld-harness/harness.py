@@ -183,6 +183,26 @@ def validate_profile(repo: Path) -> list[dict[str, Any]]:
     return checks
 
 
+def validate_artifact(path: Path, kind: str) -> dict[str, Any]:
+    home = harness_home()
+    if not home:
+        return report("validate", None, [], "Validación de artefactos requiere la fuente canónica")
+    schema = home / "schemas" / ("harness-v1.schema.json" if kind == "product" else f"{kind}.schema.json")
+    if not schema.exists() or not path.exists():
+        return report("validate", None, [], "Schema o artefacto ausente")
+    try:
+        import jsonschema  # type: ignore
+
+        data = json_load(path)
+        jsonschema.Draft202012Validator(json_load(schema), format_checker=jsonschema.FormatChecker()).validate(data)
+        checks = [result(f"validate.{kind}", "pass", f"{path.name} válido")]
+        return report("validate", None, checks)
+    except ImportError:
+        return report("validate", None, [], "jsonschema no está instalado")
+    except Exception as exc:
+        return report("validate", None, [result(f"validate.{kind}", "fail", f"{type(exc).__name__}")])
+
+
 def adapter_template(home: Path) -> tuple[str, str]:
     body = (home / "templates" / "AGENTS.block.md").read_text(encoding="utf-8").strip()
     digest = sha256_bytes(body.encode("utf-8"))
@@ -480,6 +500,8 @@ def sync_repositories(dry_run: bool) -> dict[str, Any]:
         changes += write_if_changed(repo / ".myworld-harness" / "harness.py", script, dry_run)
         changes += write_if_changed(repo / ".myworld-harness" / "harness.ps1", LAUNCHER, dry_run)
         changes += write_if_changed(repo / ".myworld-harness" / "schema.json", schema, dry_run)
+        for schema_source in sorted((home / "schemas").glob("*.schema.json")):
+            changes += write_if_changed(repo / ".myworld-harness" / "schemas" / schema_source.name, schema_source.read_bytes(), dry_run)
         changes += write_if_changed(repo / ".myworld-harness" / "AGENTS.block.md", template, dry_run)
         changes += write_if_changed(repo / ".myworld-harness" / "VERSION", VERSION + "\n", dry_run)
         changes += write_if_changed(repo / ".githooks" / "pre-commit", PRE_COMMIT, dry_run)
@@ -572,6 +594,10 @@ def main(argv: list[str] | None = None) -> int:
     audit_parser = sub.add_parser("audit")
     audit_parser.add_argument("--full", action="store_true")
     audit_parser.add_argument("--json", action="store_true")
+    validate_parser = sub.add_parser("validate")
+    validate_parser.add_argument("file")
+    validate_parser.add_argument("--kind", required=True, choices=["product", "task", "session", "lock", "handoff", "evidence", "incident", "release", "pending"])
+    validate_parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
 
     try:
@@ -583,6 +609,8 @@ def main(argv: list[str] | None = None) -> int:
             payload = pending_report()
         elif args.command == "audit":
             payload = audit(args.full)
+        elif args.command == "validate":
+            payload = validate_artifact(Path(args.file).resolve(), args.kind)
         else:
             repo = repository_root(args.repo)
             if args.command == "preflight":
