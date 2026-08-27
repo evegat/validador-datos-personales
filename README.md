@@ -60,4 +60,4 @@ La herramienta está concebida bajo el principio de **Privacy by Design**: el di
 
 **Eduardo Vega Toledo**  
 *Administrador Público · Magíster en Gobierno y Gerencia Pública*  
-Director en ONG InnCívica · Docente en FAGOB Universidad de Chile.
+Docente en FAGOB Universidad de Chile.
