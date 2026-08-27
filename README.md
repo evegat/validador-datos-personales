@@ -1,43 +1,63 @@
-# Astro Starter Kit: Minimal
+# Validador de Cumplimiento: Ley de Protección de Datos Personales Municipal
 
-```sh
-npm create astro@latest -- --template minimal
+Herramienta interactiva de autodiagnóstico, levantamiento de brechas y cumplimiento normativo diseñada para **municipalidades, corporaciones y servicios públicos locales de Chile**, en el marco de la nueva normativa de protección de datos personales.
+
+---
+
+## 🏛️ Contexto y Propósito
+
+El sector público local enfrenta exigencias crecientes respecto al tratamiento, resguardo, consentimiento y gobernanza de los datos personales de la ciudadanía. 
+
+Esta aplicación permite a equipos jurídicos, de control y de tecnologías de la información:
+1. **Evaluar el nivel de madurez** en gobernanza y seguridad de datos institucionales.
+2. **Identificar brechas críticas** de cumplimiento normativo y riesgos de fuga o uso indebido.
+3. **Generar reportes estructurados** y recomendaciones técnicas para planes de adecuación institucional.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+- **Framework:** [Astro](https://astro.build/) (Renderizado estático optimizado, cero JavaScript innecesario).
+- **Lenguaje:** TypeScript / JavaScript.
+- **Estilos:** Tailwind CSS (Diseño responsivo, accesible y de alta legibilidad).
+- **Despliegue:** Compatible con Vercel, Netlify, Cloudflare Pages o servidores estáticos locales.
+
+---
+
+## 🚀 Instalación y Uso Local
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/evegat/validador-datos-personales.git
+cd validador-datos-personales
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Iniciar servidor de desarrollo
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+El servidor local se iniciará en `http://localhost:4321`.
 
-## 🚀 Project Structure
+### Comandos disponibles
 
-Inside of your Astro project, you'll see the following folders and files:
+| Comando | Descripción |
+| :--- | :--- |
+| `npm run dev` | Inicia el entorno de desarrollo local. |
+| `npm run build` | Compila el sitio estático optimizado en la carpeta `./dist/`. |
+| `npm run preview` | Previsualiza la versión compilada de producción. |
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+---
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 🔒 Privacidad y Gobernanza de Datos
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+La herramienta está concebida bajo el principio de **Privacy by Design**: el diagnóstico y la evaluación se procesan en el cliente (navegador), sin persistencia no autorizada de datos sensibles institucionales.
 
-Any static assets, like images, can be placed in the `public/` directory.
+---
 
-## 🧞 Commands
+## 👤 Autor
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+**Eduardo Vega Toledo**  
+*Administrador Público · Magíster en Gobierno y Gerencia Pública*  
+Director en ONG InnCívica · Docente en FAGOB Universidad de Chile.
